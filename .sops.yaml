@@ -1,0 +1,11 @@
+keys:
+  - &xenon age18plnmrc70n9dwekqsmqkvg2qcp0ndjzqcvm2kjld8reql0q0mucqeda6sd
+creation_rules:
+  - path_regex: secrets/secrets.yaml$
+    key_groups:
+    - age:
+      - *xenon
+  - path_regex: secrets/vpn.yaml$
+    key_groups:
+    - age:
+      - *xenon

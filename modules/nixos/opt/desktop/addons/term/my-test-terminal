@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# term-test.sh — minimal ANSI/OSC/DSR terminal feature demo (pure Bash)
+
+set -u
+
+ESC=$'\e'
+CSI="${ESC}["
+OSC="${ESC}]"
+ST=$'\e\\'       # String Terminator (ST)
+BEL=$'\a'
+RESET="${CSI}0m"
+
+cleanup() { printf "${RESET}\n"; }
+trap cleanup EXIT
+
+sgr() { printf "${CSI}%sm" "$1"; }                # Select Graphic Rendition
+txt() { printf "%s" "$*"; }
+line() { printf "\n"; }
+
+section() { line; sgr 1; txt "== $* =="; printf "${RESET}\n"; }
+
+# --- Styles ---------------------------------------------------------------
+section "Styles (SGR)"
+while read -r code desc; do
+  sgr "$code"
+  printf "%-22s  sample → " "$desc"
+  txt "The quick brown fox"
+  printf "${RESET}\n\n"
+done <<'EOF'
+1 Bold
+2 Dim
+3 Italic
+4 Underline
+21 Double-underline
+5 Blink (often disabled)
+7 Reverse
+8 Hidden
+9 Strike
+53 Overline
+51 Framed
+52 Encircled
+EOF
+
+# --- 8/16 color (basic + bright) -----------------------------------------
+section "8/16 Colors (foreground)"
+demo_basic() {
+  local base=$1 label=$2
+  printf "%-12s" "$label"
+  for n in {0..7}; do
+    printf "${CSI}%sm %3s ${RESET}" "$((base+n))" "$((base+n))"
+  done
+  line
+}
+demo_basic 30 "FG 30–37:"
+demo_basic 90 "FG 90–97:"
+
+section "8/16 Colors (background)"
+demo_basic_bg() {
+  local base=$1 label=$2
+  printf "%-12s" "$label"
+  for n in {0..7}; do
+    printf "${CSI}%sm${CSI}30m %3s ${RESET}" "$((base+n))" "$((base+n))"
+  done
+  line
+}
+demo_basic_bg 40  "BG 40–47:"
+demo_basic_bg 100 "BG 100–107:"
+
+# --- 256-color palette ----------------------------------------------------
+section "256-Color Palette (38;5;n / 48;5;n)"
+printf "FG 0–15:   "
+for n in {0..15};  do printf "${CSI}38;5;%sm%3s${RESET} " "$n" "$n"; done; line
+
+printf "\nFG 16–231 (6×6×6 color cube):\n"
+# 216 colors in a 6×6×6 cube: 16 + (36*r + 6*g + b) where r,g,b ∈ [0,5]
+for r in {0..5}; do
+  for g in {0..5}; do
+    for b in {0..5}; do
+      n=$((16 + 36*r + 6*g + b))
+      printf "${CSI}38;5;%sm██${RESET}" "$n"
+    done
+    printf " "
+  done
+  line
+done
+
+printf "\nFG 232–255 (grayscale):\n"
+for n in {232..255}; do printf "${CSI}38;5;%sm██${RESET}" "$n"; done; line
+
+# --- Truecolor gradient (if supported) -----------------------------------
+section "Truecolor (24-bit) gradient (38;2;r;g;b)"
+for r in 0 32 64 96 128 160 192 224 255; do
+  for g in 0 51 102 153 204 255; do
+    for b in 0 85 170 255; do
+      printf "${CSI}38;2;%d;%d;%dm█" "$r" "$g" "$b"
+    done
+  done
+  printf "${RESET}\n"
+done
+
+# --- Underline styles (where supported) ----------------------------------
+section "Underline styles (CSI 4:x m)"
+while read -r style name; do
+  printf "${CSI}4:%sm%-10s${RESET}  " "$style" "$name"
+done <<'EOF'
+0 default
+1 single
+2 double
+3 curly
+4 dotted
+5 dashed
+EOF
+line
+
+# --- Hyperlink (OSC 8) ---------------------------------------------------
+section "Hyperlink (OSC 8)"
+printf "${OSC}8;;https://example.org${BEL}This is a clickable link${OSC}8;;${BEL}\n"
+
+# --- Window title (OSC 0) ------------------------------------------------
+section "Window/Tab Title (OSC 0)"
+printf "Setting title to 'ANSI Demo'…\n"
+printf "${OSC}0;ANSI Demo${BEL}"
+
+# --- Cursor movement / save/restore (CSI) --------------------------------
+section "Cursor movement"
+printf "1234567890\n"
+printf "Line with ^ will be overwritten at column 5 → "
+printf "${CSI}s\n     ^ here\n${CSI}u${CSI}5C[moved]${RESET}\n"
+
+# --- Bell -----------------------------------------------------------------
+section "Bell (BEL)"
+printf "Ringing terminal bell…${BEL}\n"
+
+# --- Unicode & emoji sample ----------------------------------------------
+section "Unicode sample"
+printf "Accents: café naïve fiancée — Greek: Ελληνικά — CJK: 漢字かな交じり文\n"
+printf "Emoji (may depend on font): 😀 🧪 🚀\n"
+
+printf "${RESET}\nDone.\n"

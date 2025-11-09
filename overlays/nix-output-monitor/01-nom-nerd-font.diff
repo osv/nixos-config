@@ -1,0 +1,40 @@
+diff --git a/lib/NOM/Print.hs b/lib/NOM/Print.hs
+index f6106a9..45e78b1 100644
+--- a/lib/NOM/Print.hs
++++ b/lib/NOM/Print.hs
+@@ -69,23 +69,23 @@ down = "↓" <> textRep
+ -- ["2191","FE0E"]
+ up = "↑" <> textRep
+ -- >>> showCode clock
+--- ["23F1","FE0E"]
+-clock = "⏱" <> textRep
++-- ["F0E4","FE0E"]
++clock = "\61668" <> textRep
+ -- >>> showCode running
+--- ["25B6","FE0E"]
+-running = "⏵" <> textRep
++-- ["F04B","FE0E"]
++running = "\61515" <> textRep
+ -- >>> showCode done
+--- ["2714","FE0E"]
+-done = "✔" <> textRep
++-- ["F00C","FE0E"]
++done = "\61452" <> textRep
+ -- >>> showCode todo
+--- ["23F3","FE0E"]
+-todo = "⏳" <> textRep
++-- ["F252","FE0E"]
++todo = "\62034" <> textRep
+ -- >>> showCode warning
+--- ["26A0","FE0E"]
+-warning = "⚠" <> textRep
++-- ["F071","FE0E"]
++warning = "\61553" <> textRep
+ -- >>> showCode average
+--- ["2205","FE0E"]
+-average = "∅" <> textRep
++-- ["F468","FE0E"]
++average = "\62568" <> textRep
+ -- >>> showCode bigsum
+ -- ["2211","FE0E"]
+ bigsum = "∑" <> textRep

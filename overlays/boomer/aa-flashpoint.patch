@@ -1,0 +1,28 @@
+From 975add07551232401d04d8c7fe21cfa5114267bc Mon Sep 17 00:00:00 2001
+From: deter0 <deter0109@gmail.com>
+Date: Mon, 22 Aug 2022 17:58:00 -0400
+Subject: [PATCH] Add anti-aliasing to flashlight mode
+
+---
+ src/frag.glsl | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/frag.glsl b/src/frag.glsl
+index 7d79073..8af700f 100644
+--- a/src/frag.glsl
++++ b/src/frag.glsl
+@@ -11,7 +11,13 @@ uniform float cameraScale;
+ void main()
+ {
+     vec4 cursor = vec4(cursorPos.x, windowSize.y - cursorPos.y, 0.0, 1.0);
++
++    float dist = distance(cursor, gl_FragCoord);
++    float delta = fwidth(dist);
++    float alpha = smoothstep(flRadius * cameraScale - delta, flRadius * cameraScale, dist);
++
+     color = mix(
+         texture(tex, texcoord), vec4(0.0, 0.0, 0.0, 0.0),
+-        length(cursor - gl_FragCoord) < (flRadius * cameraScale) ? 0.0 : flShadow);
++        min(alpha, flShadow)
++    );
+ }

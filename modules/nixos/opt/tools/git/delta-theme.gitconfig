@@ -1,0 +1,40 @@
+# See https://github.com/dandavison/delta/blob/main/themes.gitconfig
+# Based on chameleon theme
+[delta "chameleon"]
+    dark = true
+    line-numbers = true
+    side-by-side = true
+    keep-plus-minus-markers = false
+    syntax-theme = Nord
+    file-style = blue
+    file-decoration-style = blue overline
+    file-added-label = [+]
+    file-copied-label = [==]
+    file-modified-label = [*]
+    file-removed-label = [-]
+    file-renamed-label = [->]
+    line-numbers-left-format = " {nm:>4}┊"
+    line-numbers-left-style = red
+    line-numbers-right-format = " {np:>4}┊"
+    line-numbers-right-style = green
+    line-numbers-minus-style = red italic
+    line-numbers-plus-style = green italic
+    line-numbers-zero-style = grey italic
+    minus-style = bold red
+    # minus-emph-style = bold "#202020" "#FF5555"
+    minus-emph-style = black red
+    minus-non-emph-style = bold
+    plus-style = bold green
+    # plus-emph-style = bold "#202020" "#50FA7B"
+    plus-emph-style = black green
+    plus-non-emph-style = bold
+    zero-style = syntax
+    blame-code-style = syntax
+    blame-format = "{author:<18} ({commit:>9}) {timestamp:^16}"
+    blame-palette = "#2E3440" "#3B4252" "#434C5E" "#4C566A"
+    merge-conflict-begin-symbol = ~
+    merge-conflict-end-symbol = ~
+    merge-conflict-ours-diff-header-style = "#F1FA8C" bold
+    merge-conflict-ours-diff-header-decoration-style = "#434C5E" box
+    merge-conflict-theirs-diff-header-style = "#F1FA8C" bold
+    merge-conflict-theirs-diff-header-decoration-style = "#434C5E" box
