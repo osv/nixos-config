@@ -6,7 +6,6 @@ let
   cfg = config.nerv.suites.development;
   apps = {
     vscode = on;
-    chromium = on; # Need for testing some frontend shit
     emacs = {
       enable = yes;
       defaultEditor = yes;

@@ -62,6 +62,7 @@ in
       opt.apps = {
         # _1password = on;
         firefox = on;
+        chromium = on; # Need for testing some frontend shit
         vlc = on;
         # logseq = on;
         # hey = on;

@@ -101,6 +101,7 @@
 | `nerv.opt.desktop.addons.xresources` | X resources configuration |
 | `nerv.opt.desktop.displayManager.gdm` | GNOME display manager |
 | `nerv.opt.desktop.displayManager.sddm` | SDDM display manager |
+| `nerv.opt.desktop.fluxbox` | Fluxbox window manager with Mod4 (Windows key) bindings |
 | `nerv.opt.desktop.gnome` | GNOME desktop environment |
 | `nerv.opt.desktop.sway` | Sway window manager |
 | `nerv.opt.desktop.xmonad` | XMonad window manager with polybar |
