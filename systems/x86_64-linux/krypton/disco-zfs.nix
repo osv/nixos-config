@@ -26,22 +26,18 @@ in
         content = {
           type = "gpt";
           partitions = {
-            boot = { start = "0";
-                     end = "1M";
-                     type = "EF02"; # for grub MBR
-                     label = "root";
-                   };
-            root = { start = "1M";
-                     end = "2G";
-                     type = "EF00";
-                     label = "root";
-                     content = {
-                       mountpoint = "/boot";
-                       format = "ext4";
-                       type = "filesystem";
-                     };
-                   };
-            zfs = { start = "2G";
+            ESP = {
+              type = "EF00";
+	          start = "0";
+              end = "1G";
+              content = {
+                type = "filesystem";
+                format = "vfat";
+                mountpoint = "/boot";
+                mountOptions = [ "umask=0077" ];
+              };
+            };
+            zfs = { start = "1G";
                     end = "100%";
                     label = "zfs";
                     content = {
