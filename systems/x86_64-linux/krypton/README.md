@@ -31,6 +31,7 @@ cd systems/x86_64-linux/krypton
 sudo ./restore-from-snapshot.sh extbackup/xenon/persist /mnt/persist
 
 # Step 4: Install NixOS
+sudo git config --global --add safe.directory /home/nixos/nixos-config
 sudo nixos-install --flake .#krypton --root /mnt
 
 # Step 5: Cleanup - export backup pool
