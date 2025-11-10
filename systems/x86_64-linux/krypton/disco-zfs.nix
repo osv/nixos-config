@@ -28,8 +28,7 @@ in
           partitions = {
             ESP = {
               type = "EF00";
-	          start = "0";
-              end = "1G";
+	          size = "500M";
               content = {
                 type = "filesystem";
                 format = "vfat";
@@ -37,8 +36,7 @@ in
                 mountOptions = [ "umask=0077" ];
               };
             };
-            zfs = { start = "1G";
-                    end = "100%";
+            zfs = { size = "100%";
                     label = "zfs";
                     content = {
                       type = "zfs";
