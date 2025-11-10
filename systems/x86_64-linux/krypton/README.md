@@ -20,18 +20,15 @@ Complete installation workflow for Krypton system with data restore from backup.
 # Step 1: Partition disks and create ZFS pool with disko
 sudo nix run github:nix-community/disko -- --mode disko --flake .#krypton
 
-# Step 2: Import backup pool (read-only for safety)
-sudo zpool import -o readonly=on extbackup
+# Step 2: Import backup pool
+sudo zpool import extbackup
 sudo zfs load-key extbackup
+sudo zfs mount -a
 
-# Step 3: Find latest snapshot and copy all data
-LATEST=$(ls -t /extbackup/xenon/persist/.zfs/snapshot | head -1)
-echo "Restoring from snapshot: $LATEST"
-
-# rsync crosses dataset boundaries and copies everything
-sudo rsync -aHAWX --info=progress2 \
-  "/extbackup/xenon/persist/.zfs/snapshot/$LATEST/" \
-  /mnt/persist/
+# Step 3: Restore data using the helper script
+# This finds the latest snapshot and recursively restores all nested datasets
+cd systems/x86_64-linux/krypton
+sudo ./restore-from-snapshot.sh extbackup/xenon/persist tank/safe/persist
 
 # Step 4: Install NixOS
 sudo nixos-install --flake .#krypton --root /mnt
@@ -42,18 +39,44 @@ sudo zpool export extbackup
 echo "Installation complete! You can reboot into krypton."
 ```
 
+**Alternative: Manual ZFS Send/Recv**
+
+If you prefer to do it manually without the helper script:
+
+```bash
+# After disko
+sudo nix run github:nix-community/disko -- --mode disko --flake .#krypton
+
+# Import backup
+sudo zpool import extbackup
+sudo zfs load-key extbackup
+
+# Find latest snapshot and restore recursively
+LATEST=$(zfs list -t snapshot -o name -s creation -H -d 1 extbackup/xenon/persist | tail -1)
+echo "Restoring from snapshot: $LATEST"
+
+# -R flag includes all child datasets recursively
+sudo zfs send -R "$LATEST" | sudo zfs recv -F tank/safe/persist
+
+# Install and cleanup
+sudo nixos-install --flake .#krypton --root /mnt
+sudo zpool export extbackup
+```
+
 ### Step-by-Step Explanation
 
 1. **Disko partitioning**: Creates ZFS pool `tank` with all datasets defined in `disco-zfs.nix`
    - All mountpoints are created under `/mnt` (e.g., `/mnt/persist`)
 
-2. **Import backup**: Mounts the external backup pool read-only for safety
+2. **Import backup**: Imports the external backup pool
    - Requires encryption key if backup pool is encrypted
+   - Loads the key to unlock encrypted datasets
 
-3. **Data restore**: Uses rsync to copy all data from latest snapshot
-   - `-aHAWX` preserves all permissions, attributes, hard links, ACLs, and xattrs
-   - Without `-x` flag, rsync crosses ZFS dataset boundaries automatically
-   - Copies all subdatasets (persist, persist/home, persist/home/osv, etc.)
+3. **Data restore**: Uses ZFS send/recv to restore data from latest snapshot
+   - `restore-from-snapshot.sh` script finds the latest snapshot automatically
+   - `-R` flag in `zfs send` includes all child datasets recursively
+   - Preserves all ZFS properties, snapshots, and dataset hierarchy
+   - Each nested dataset (persist, persist/home, persist/home/osv, etc.) is restored correctly
 
 4. **NixOS install**: Installs the system with your flake configuration
 
@@ -71,22 +94,23 @@ sudo nixos-install --flake .#krypton --root /mnt
 
 ### Alternative: Install With Selective Restore
 
-To restore only specific directories:
+To restore only specific datasets (e.g., just home directory):
 
 ```bash
 # After disko
 sudo nix run github:nix-community/disko -- --mode disko --flake .#krypton
 
 # Import backup
-sudo zpool import -o readonly=on extbackup
+sudo zpool import extbackup
 sudo zfs load-key extbackup
 
-LATEST=$(ls -t /extbackup/xenon/persist/.zfs/snapshot | head -1)
+# Restore only specific dataset (and its children)
+cd systems/x86_64-linux/krypton
+sudo ./restore-from-snapshot.sh extbackup/xenon/persist/home tank/safe/persist/home
 
-# Restore only home directory
-sudo rsync -aHAWX --info=progress2 \
-  "/extbackup/xenon/persist/.zfs/snapshot/$LATEST/home/" \
-  /mnt/persist/home/
+# Or manually:
+# LATEST=$(zfs list -t snapshot -o name -s creation -H -d 1 extbackup/xenon/persist/home | tail -1)
+# sudo zfs send -R "$LATEST" | sudo zfs recv -F tank/safe/persist/home
 
 # Continue with install
 sudo nixos-install --flake .#krypton --root /mnt
