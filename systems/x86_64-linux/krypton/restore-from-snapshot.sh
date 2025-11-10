@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Script to restore ZFS datasets from latest snapshot
-# Usage: ./restore-from-snapshot.sh <source-dataset> <destination-dataset>
-# Example: ./restore-from-snapshot.sh extbackup/xenon/persist tank/safe/persist
+# Script to restore ZFS datasets from latest snapshot using rsync
+# Usage: ./restore-from-snapshot.sh <source-dataset> <destination-path>
+# Example: ./restore-from-snapshot.sh extbackup/xenon/persist /mnt/persist
 
 if [ $# -ne 2 ]; then
-    echo "Usage: $0 <source-dataset> <destination-dataset>"
+    echo "Usage: $0 <source-dataset> <destination-path>"
     echo ""
     echo "Example:"
-    echo "  $0 extbackup/xenon/persist tank/safe/persist"
+    echo "  $0 extbackup/xenon/persist /mnt/persist"
     echo ""
-    echo "This will find the latest snapshot of the source dataset and"
-    echo "recursively restore it (including all child datasets) to the destination."
+    echo "This will find the latest snapshot of each dataset and"
+    echo "recursively restore all nested datasets using rsync."
     exit 1
 fi
 
@@ -28,25 +28,16 @@ if ! zfs list "$SRC" &>/dev/null; then
     exit 1
 fi
 
-# Find latest snapshot of the source dataset (not child datasets)
-LATEST=$(zfs list -t snapshot -o name -s creation -H -d 1 "$SRC" 2>/dev/null | tail -1)
-
-if [ -z "$LATEST" ]; then
-    echo "Error: No snapshots found for dataset '$SRC'"
-    echo ""
-    echo "Available snapshots:"
-    zfs list -t snapshot -r "$SRC"
-    exit 1
-fi
+# Get all datasets under source (including source itself)
+DATASETS=$(zfs list -r -H -o name "$SRC" | sort)
 
 echo "====================================="
-echo "ZFS Snapshot Restore"
+echo "ZFS Snapshot Restore (rsync)"
 echo "====================================="
 echo "Source:      $SRC"
-echo "Snapshot:    $LATEST"
 echo "Destination: $DST"
 echo ""
-echo "This will recursively restore all child datasets."
+echo "Found $(echo "$DATASETS" | wc -l) datasets to restore"
 echo ""
 read -p "Continue? (y/N) " -n 1 -r
 echo
@@ -59,14 +50,47 @@ echo ""
 echo "Starting restore..."
 echo ""
 
-# Send with -R (recursive, includes all child datasets and their snapshots)
-# -F on recv to force rollback if destination exists
-zfs send -R "$LATEST" | zfs recv -F "$DST"
+# Restore each dataset separately
+for dataset in $DATASETS; do
+    # Find latest snapshot for this specific dataset
+    LATEST=$(zfs list -t snapshot -o name -s creation -H -d 1 "$dataset" 2>/dev/null | tail -1 | cut -d@ -f2)
+
+    if [ -z "$LATEST" ]; then
+        echo "Warning: No snapshot for $dataset, skipping"
+        continue
+    fi
+
+    # Get mountpoint of the dataset
+    MOUNTPOINT=$(zfs get -H -o value mountpoint "$dataset")
+
+    if [ "$MOUNTPOINT" = "none" ] || [ "$MOUNTPOINT" = "-" ]; then
+        echo "Skipping $dataset (no mountpoint)"
+        continue
+    fi
+
+    # Calculate relative path and destination
+    RELPATH=$(echo "$dataset" | sed "s|^$SRC||")
+    DEST_PATH="${DST}${RELPATH}"
+    SNAP_PATH="${MOUNTPOINT}/.zfs/snapshot/${LATEST}"
+
+    echo "---"
+    echo "Dataset:  $dataset"
+    echo "Snapshot: $LATEST"
+    echo "From:     $SNAP_PATH"
+    echo "To:       $DEST_PATH"
+
+    # Create destination directory if needed
+    mkdir -p "$DEST_PATH"
+
+    # Rsync from snapshot to destination
+    rsync -aHAWX --info=progress2 \
+        "${SNAP_PATH}/" \
+        "${DEST_PATH}/"
+
+    echo "✓ Completed"
+done
 
 echo ""
 echo "====================================="
 echo "Restore completed successfully!"
 echo "====================================="
-echo ""
-echo "Restored datasets:"
-zfs list -r "$DST"

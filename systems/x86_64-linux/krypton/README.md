@@ -26,9 +26,9 @@ sudo zfs load-key extbackup
 sudo zfs mount -a
 
 # Step 3: Restore data using the helper script
-# This finds the latest snapshot and recursively restores all nested datasets
+# This finds the latest snapshot of each dataset and restores using rsync
 cd systems/x86_64-linux/krypton
-sudo ./restore-from-snapshot.sh extbackup/xenon/persist tank/safe/persist
+sudo ./restore-from-snapshot.sh extbackup/xenon/persist /mnt/persist
 
 # Step 4: Install NixOS
 sudo nixos-install --flake .#krypton --root /mnt
@@ -39,7 +39,7 @@ sudo zpool export extbackup
 echo "Installation complete! You can reboot into krypton."
 ```
 
-**Alternative: Manual ZFS Send/Recv**
+**Alternative: Manual Rsync for Each Dataset**
 
 If you prefer to do it manually without the helper script:
 
@@ -50,13 +50,21 @@ sudo nix run github:nix-community/disko -- --mode disko --flake .#krypton
 # Import backup
 sudo zpool import extbackup
 sudo zfs load-key extbackup
+sudo zfs mount -a
 
-# Find latest snapshot and restore recursively
-LATEST=$(zfs list -t snapshot -o name -s creation -H -d 1 extbackup/xenon/persist | tail -1)
-echo "Restoring from snapshot: $LATEST"
+# Restore each dataset manually
+for dataset in $(zfs list -r -H -o name extbackup/xenon/persist); do
+    LATEST=$(zfs list -t snapshot -o name -s creation -H -d 1 "$dataset" | tail -1 | cut -d@ -f2)
+    MOUNTPOINT=$(zfs get -H -o value mountpoint "$dataset")
+    RELPATH=$(echo "$dataset" | sed 's|extbackup/xenon/persist||')
 
-# -R flag includes all child datasets recursively
-sudo zfs send -R "$LATEST" | sudo zfs recv -F tank/safe/persist
+    if [ -n "$LATEST" ] && [ "$MOUNTPOINT" != "none" ]; then
+        echo "Restoring $dataset @ $LATEST"
+        rsync -aHAWX --info=progress2 \
+            "${MOUNTPOINT}/.zfs/snapshot/${LATEST}/" \
+            "/mnt/persist${RELPATH}/"
+    fi
+done
 
 # Install and cleanup
 sudo nixos-install --flake .#krypton --root /mnt
@@ -72,11 +80,11 @@ sudo zpool export extbackup
    - Requires encryption key if backup pool is encrypted
    - Loads the key to unlock encrypted datasets
 
-3. **Data restore**: Uses ZFS send/recv to restore data from latest snapshot
-   - `restore-from-snapshot.sh` script finds the latest snapshot automatically
-   - `-R` flag in `zfs send` includes all child datasets recursively
-   - Preserves all ZFS properties, snapshots, and dataset hierarchy
-   - Each nested dataset (persist, persist/home, persist/home/osv, etc.) is restored correctly
+3. **Data restore**: Uses rsync to restore data from latest snapshot of each dataset
+   - `restore-from-snapshot.sh` script automatically finds and restores all nested datasets
+   - Loops through each dataset and finds its latest snapshot
+   - Uses rsync to copy files while preserving permissions, attributes, and hard links
+   - Each nested dataset (persist, persist/home, persist/home/osv, etc.) is restored from its own snapshot
 
 4. **NixOS install**: Installs the system with your flake configuration
 
@@ -106,11 +114,12 @@ sudo zfs load-key extbackup
 
 # Restore only specific dataset (and its children)
 cd systems/x86_64-linux/krypton
-sudo ./restore-from-snapshot.sh extbackup/xenon/persist/home tank/safe/persist/home
+sudo ./restore-from-snapshot.sh extbackup/xenon/persist/home /mnt/persist/home
 
-# Or manually:
-# LATEST=$(zfs list -t snapshot -o name -s creation -H -d 1 extbackup/xenon/persist/home | tail -1)
-# sudo zfs send -R "$LATEST" | sudo zfs recv -F tank/safe/persist/home
+# Or manually with rsync:
+# LATEST=$(zfs list -t snapshot -o name -s creation -H -d 1 extbackup/xenon/persist/home | tail -1 | cut -d@ -f2)
+# MOUNTPOINT=$(zfs get -H -o value mountpoint extbackup/xenon/persist/home)
+# sudo rsync -aHAWX "${MOUNTPOINT}/.zfs/snapshot/${LATEST}/" /mnt/persist/home/
 
 # Continue with install
 sudo nixos-install --flake .#krypton --root /mnt
