@@ -2,22 +2,47 @@
 set -euo pipefail
 
 # Script to restore ZFS datasets from latest snapshot using rsync
-# Usage: ./restore-from-snapshot.sh <source-dataset> <destination-path>
-# Example: ./restore-from-snapshot.sh extbackup/xenon/persist /mnt/persist
+# Usage: ./restore-from-snapshot.sh <source-dataset> <destination-path> [--exclude pattern]...
+# Example: ./restore-from-snapshot.sh extbackup/xenon/persist /mnt/persist --exclude derivative
 
-if [ $# -ne 2 ]; then
-    echo "Usage: $0 <source-dataset> <destination-path>"
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 <source-dataset> <destination-path> [--exclude pattern]..."
     echo ""
-    echo "Example:"
+    echo "Examples:"
     echo "  $0 extbackup/xenon/persist /mnt/persist"
+    echo "  $0 extbackup/xenon/persist /mnt/persist --exclude derivative"
+    echo "  $0 extbackup/xenon/persist /mnt/persist --exclude derivative --exclude cache"
     echo ""
     echo "This will find the latest snapshot of each dataset and"
     echo "recursively restore all nested datasets using rsync."
+    echo ""
+    echo "Options:"
+    echo "  --exclude pattern  Skip datasets containing this pattern (can be used multiple times)"
     exit 1
 fi
 
 SRC="$1"
 DST="$2"
+shift 2
+
+# Parse exclude patterns
+EXCLUDES=()
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --exclude)
+            if [ $# -lt 2 ]; then
+                echo "Error: --exclude requires an argument"
+                exit 1
+            fi
+            EXCLUDES+=("$2")
+            shift 2
+            ;;
+        *)
+            echo "Error: Unknown argument '$1'"
+            exit 1
+            ;;
+    esac
+done
 
 # Verify source dataset exists
 if ! zfs list "$SRC" &>/dev/null; then
@@ -31,11 +56,33 @@ fi
 # Get all datasets under source (including source itself)
 DATASETS=$(zfs list -r -H -o name "$SRC" | sort)
 
+# Filter out excluded datasets
+if [ ${#EXCLUDES[@]} -gt 0 ]; then
+    FILTERED_DATASETS=""
+    for dataset in $DATASETS; do
+        SKIP=false
+        for pattern in "${EXCLUDES[@]}"; do
+            if [[ "$dataset" == *"$pattern"* ]]; then
+                SKIP=true
+                echo "Excluding: $dataset (matches pattern '$pattern')"
+                break
+            fi
+        done
+        if [ "$SKIP" = false ]; then
+            FILTERED_DATASETS="$FILTERED_DATASETS$dataset"$'\n'
+        fi
+    done
+    DATASETS=$(echo "$FILTERED_DATASETS" | grep -v '^$')
+fi
+
 echo "====================================="
 echo "ZFS Snapshot Restore (rsync)"
 echo "====================================="
 echo "Source:      $SRC"
 echo "Destination: $DST"
+if [ ${#EXCLUDES[@]} -gt 0 ]; then
+    echo "Excludes:    ${EXCLUDES[*]}"
+fi
 echo ""
 echo "Found $(echo "$DATASETS" | wc -l) datasets to restore"
 echo ""

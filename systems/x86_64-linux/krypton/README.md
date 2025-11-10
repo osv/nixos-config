@@ -27,8 +27,9 @@ sudo zfs mount -a
 
 # Step 3: Restore data using the helper script
 # This finds the latest snapshot of each dataset and restores using rsync
+# Exclude derivative dataset (cache data that can be regenerated)
 cd systems/x86_64-linux/krypton
-sudo ./restore-from-snapshot.sh extbackup/xenon/persist /mnt/persist
+sudo ./restore-from-snapshot.sh extbackup/xenon/persist /mnt/persist --exclude derivative
 
 # Step 4: Install NixOS
 sudo git config --global --add safe.directory /home/nixos/nixos-config
@@ -38,6 +39,25 @@ sudo nixos-install --flake .#krypton --root /mnt
 sudo zpool export extbackup
 
 echo "Installation complete! You can reboot into krypton."
+```
+
+**Excluding Datasets**
+
+You can exclude specific datasets from restore using `--exclude` (useful for skipping cache/derivative data):
+
+```bash
+# Exclude derivative only
+sudo ./restore-from-snapshot.sh extbackup/xenon/persist /mnt/persist --exclude derivative
+
+# Exclude multiple datasets
+sudo ./restore-from-snapshot.sh extbackup/xenon/persist /mnt/persist \
+  --exclude derivative --exclude cache --exclude torrents
+
+# Common exclusions for faster restore:
+# - derivative: Package manager caches (can be regenerated)
+# - cache: Temporary cache files
+# - torrents: Large torrent data
+# - stash: Non-backed-up personal data
 ```
 
 **Alternative: Manual Rsync for Each Dataset**
@@ -116,6 +136,9 @@ sudo zfs load-key extbackup
 # Restore only specific dataset (and its children)
 cd systems/x86_64-linux/krypton
 sudo ./restore-from-snapshot.sh extbackup/xenon/persist/home /mnt/persist/home
+
+# Restore home but exclude cache directories
+sudo ./restore-from-snapshot.sh extbackup/xenon/persist/home /mnt/persist/home --exclude cache
 
 # Or manually with rsync:
 # LATEST=$(zfs list -t snapshot -o name -s creation -H -d 1 extbackup/xenon/persist/home | tail -1 | cut -d@ -f2)
