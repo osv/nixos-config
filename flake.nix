@@ -123,6 +123,9 @@
       systems.hosts.argon.modules = with inputs; [
         disko.nixosModules.disko
       ];
+      systems.hosts.krypton.modules = with inputs; [
+        disko.nixosModules.disko
+      ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 

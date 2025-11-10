@@ -19,7 +19,7 @@ with lib; rec {
   yes = true;
   no = false;
 
-  fuckOff = lib.mkForce false;
+  fuckOff = { enable = lib.mkForce false; };
   fuckYes = lib.mkForce true;
 
   # Simplify creation of multiple standard modules in a single file
