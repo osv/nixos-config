@@ -126,33 +126,6 @@ in {
   services.xserver = {
     windowManager.fluxbox.enable = true;
     desktopManager.xterm.enable = true;
-    videoDrivers = [
-      # "nouveau"
-      "nvidia"
-    ];
-    # enable nvidia-settings overclocking
-    deviceSection = ''
-      Option         "Coolbits" "28"
-    '';
-    # # Set Persistence Mode for all GPUs (so power limits "stick" across WUs)
-    # nvidia-smi -pm 1
-    #
-    # # Set the Power Limit for GPU0 to 160W
-    # nvidia-smi -i 0 -pl 160
-    #
-    # # Set the Minimum GPU Core Clock to 1830MHz and the Maximum to 1980MHz.
-    # nvidia-smi -i 0 -lgc 1830,1980
-    #
-    # # Enable manual fan control
-    # # Set both fans for a Turing or later GPU to 75% (Pascal and earlier only have 1 fan control register which controls both fans)
-    # # Set GPU0 to "Prefer Maximum Performance"
-    # # Add a +75MHz (5 x 15MHz Turing "bins") GPU Clock offset
-    # DISPLAY=:0 XAUTHORITY=/run/user/1000/gdm/Xauthority nvidia-settings \
-    #  -a [gpu:0]/GPUFanControlState=1 \
-    #  -a [fan:0]/GPUTargetFanSpeed=75 \
-    #  -a [fan:1]/GPUTargetFanSpeed=75 \
-    #  -a [gpu:0]/GPUPowerMizerMode=1 \
-    #  -a [gpu:0]/GPUGraphicsClockOffsetAllPerformanceLevels=75
   };
 
   fonts.fontconfig = {
