@@ -237,18 +237,18 @@ in
     };
 
     nerv.home.activation = mkIf doomCfg.enable {
-      installDoomEmacs =
-        lib.home-manager.hm.dag.entryAfter [ "writeBoundary" ] ''
-          if [ ! -f "$XDG_CONFIG_HOME/emacs/.doomrc" ]; then
-            echo "==> [Emacs] $XDG_CONFIG_HOME/emacs"
-            set +e
-            # Cloning to tmp directory, ~/.config/emacs might be mounted as persist dir
-            ${lib.getExe pkgs.git} clone --depth=1 --single-branch "${doomCfg.repoUrl}" /tmp/doom_emacs
-            cp -r /tmp/doom_emacs/. "$XDG_CONFIG_HOME/emacs/"
-            rm -rf /tmp/doom_emacs
-            set -e
-          fi
-        '';
+      # installDoomEmacs =
+      #   lib.home-manager.hm.dag.entryAfter [ "writeBoundary" ] ''
+      #     if [ ! -f "$XDG_CONFIG_HOME/emacs/.doomrc" ]; then
+      #       echo "==> [Emacs] $XDG_CONFIG_HOME/emacs"
+      #       set +e
+      #       # Cloning to tmp directory, ~/.config/emacs might be mounted as persist dir
+      #       ${lib.getExe pkgs.git} clone --depth=1 --single-branch "${doomCfg.repoUrl}" /tmp/doom_emacs
+      #       cp -r /tmp/doom_emacs/. "$XDG_CONFIG_HOME/emacs/"
+      #       rm -rf /tmp/doom_emacs
+      #       set -e
+      #     fi
+      #   '';
     };
   };
 }

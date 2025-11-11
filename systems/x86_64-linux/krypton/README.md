@@ -38,6 +38,9 @@ sudo nixos-install --flake .#krypton --root /mnt
 # Step 5: Cleanup - export backup pool
 sudo zpool export extbackup
 
+# Step 6: Fix permissions (nixos user id is same like for osv user)
+sudo chown nixos -R  /mnt/persist/state/home/osv/
+
 echo "Installation complete! You can reboot into krypton."
 ```
 

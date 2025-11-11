@@ -45,6 +45,14 @@ in {
       media = fuckOff;
     };
     opt.tools = { appimage-run = fuckOff; };
+    opt.apps = {
+      firefox = fuckOff;
+      ai = {
+        claude-desktop = no;
+        code-cursor = no;
+        whisper = no;
+      };
+    };
   };
 
   # https://ditana.org/docs/the-installer/kernel_configuration/zram/
