@@ -182,6 +182,14 @@ stdModules { inherit config lib pkgs; } [
   ]
 
   [
+    "nerv.opt.apps.qimgv"
+    "Qt5 image viewer"
+    (with pkgs; [ qimgv ])
+    { state.homeDirectories = [ ".config/qimgv" ]; }
+    {}
+  ]
+
+  [
     "nerv.opt.apps.rpcs3"
     "rpcs3"
     (with pkgs; [ rpcs3 ])
@@ -266,6 +274,18 @@ stdModules { inherit config lib pkgs; } [
     "Yuzu"
     (with pkgs; [ yuzu-mainline ])
     {}
+    {}
+  ]
+
+  [
+    "nerv.opt.apps.zathura"
+    "Zathura Pdf viewer"
+    (with pkgs; [
+      (zathura.override {
+        useMupdf = true;
+      })
+    ])
+    { state.homeDirectories = [ ".config/zathura" ]; }
     {}
   ]
 ]

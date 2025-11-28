@@ -194,6 +194,35 @@ in
           KillSignal = "USR2";  # Emacs handles this gracefully
         };
       };
+
+      home.packages = with pkgs; [
+        (makeDesktopItem {
+          name = "emacsclient";
+          desktopName = "Emacs (Client)";
+          genericName = "Text Editor";
+          icon = "emacs";
+          exec = "${myEmacsPkg}/bin/emacsclient -c -a ${myEmacsPkg}/bin/emacs %F";
+          categories = [ "Development" "TextEditor" "Utility" ];
+          mimeTypes = [
+            "text/english"
+            "text/plain"
+            "text/x-makefile"
+            "text/x-c++hdr"
+            "text/x-c++src"
+            "text/x-chdr"
+            "text/x-csrc"
+            "text/x-java"
+            "text/x-moc"
+            "text/x-pascal"
+            "text/x-tcl"
+            "text/x-tex"
+            "text/x-python"
+            "text/vbscript"
+            "application/x-shellscript"
+          ];
+          terminal = false;
+        })
+      ];
     };
 
     environment = {

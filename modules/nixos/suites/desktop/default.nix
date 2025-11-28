@@ -64,6 +64,8 @@ in
         firefox = on;
         chromium = on; # Need for testing some frontend shit
         vlc = on;
+        qimgv = on;
+        zathura = on;
         # logseq = on;
         # hey = on;
         # pocketcasts = on;

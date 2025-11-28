@@ -278,6 +278,54 @@ When using `stdModules`, create or update `modules/nixos/opt/<category>/default.
 
 Complex modules should still have their own subdirectory with a `default.nix` file.
 
+### Enabling Modules in Suites
+
+After creating a module, you must enable it in an appropriate suite. Modules are NOT automatically enabled.
+
+**Suite organization** (`modules/nixos/suites/`):
+- `common` / `common-slim`: Base system utilities
+- `desktop`: Core desktop apps (browsers, file manager, media viewers)
+- `development`: Development tools (editors, databases, docker)
+- `art`: Creative tools (GIMP, Inkscape, Blender)
+- `video`: Video editing (Shotcut, SimpleScreenRecorder)
+- `music`: Audio production (Ardour)
+- `media`: Media streaming (FreeTube)
+- `social`: Communication (Telegram, Discord, Zoom)
+- `games`: Gaming (Steam, Lutris)
+- `emulation`: Game emulation (Yuzu, PCSX2)
+
+**How to enable a module in a suite**:
+
+1. Identify the appropriate suite based on the module's function
+2. Open the suite file: `modules/nixos/suites/<suite-name>/default.nix`
+3. Add the module to the `opt.apps` (or appropriate category) section using `on`
+
+**Example** - enabling qimgv in the desktop suite:
+```nix
+# In modules/nixos/suites/desktop/default.nix
+nerv = {
+  opt.apps = {
+    firefox = on;
+    vlc = on;
+    qimgv = on;    # Add new module here
+    zathura = on;
+  };
+};
+```
+
+**Suite selection guidelines**:
+- **desktop**: Lightweight essential utilities (viewers, file managers, browsers)
+- **development**: IDEs, editors, programming tools
+- **art/video/music**: Specialized creative/production tools
+- **games/emulation**: Gaming-related applications
+
+**Complete workflow for adding a new app**:
+1. Add module definition to `modules/nixos/opt/apps/default.nix` using `stdModules`
+2. Enable the module in the appropriate suite
+3. Run `git add` on modified files
+4. Update `MODULES.md` if adding a new module
+5. Test build: `nixos-rebuild build --flake .#<hostname>`
+
 ### Persistence Configuration
 When `isRootOnTmpFS = true`, stateful data is preserved in:
 - `/persist/state/`: System state

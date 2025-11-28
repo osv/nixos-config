@@ -35,6 +35,7 @@
 | `nerv.opt.apps.pocketcasts` | Podcast player |
 | `nerv.opt.apps.prismlauncher` | Minecraft launcher |
 | `nerv.opt.apps.protontricks` | Proton game fixes helper |
+| `nerv.opt.apps.qimgv` | Qt5 image viewer |
 | `nerv.opt.apps.rpcs3` | PlayStation 3 emulator |
 | `nerv.opt.apps.shotcut` | Video editor |
 | `nerv.opt.apps.simplescreenrecorder` | Screen recorder for Linux |
@@ -50,6 +51,7 @@
 | `nerv.opt.apps.winetricks` | Wine helper script |
 | `nerv.opt.apps.yt-music` | YouTube Music desktop app |
 | `nerv.opt.apps.yuzu` | Nintendo Switch emulator |
+| `nerv.opt.apps.zathura` | Lightweight PDF/document viewer |
 | `nerv.opt.apps.zoom` | Video conferencing |
 
 ## CLI Apps
