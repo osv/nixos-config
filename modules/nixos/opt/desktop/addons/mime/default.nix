@@ -5,7 +5,7 @@ with lib.nerv;
 let
   cfg = config.nerv.opt.desktop.addons.mime;
   browser = [ "firefox.desktop" ];
-  player = [ "vlc.desktop" ];
+  player = [ "mpv.desktop" ];
   editor = [ "emacsclient.desktop" ];
   imageViewer = [ "qimgv.desktop" ];
   pdfViewer = [ "org.pwmt.zathura.desktop" ];

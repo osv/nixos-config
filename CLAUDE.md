@@ -198,7 +198,8 @@ stdModules { inherit config lib pkgs; } [
 
 **Parameters**:
 - `path`: Module option path, e.g., `"nerv.opt.cli-apps.wine"`
-- `description`: Short name used in enable option description, e.g., `"Wine"` generates "Whether or not to enable Wine."
+- `description`: Short name used in enable option description, e.g., "VLC (Video player)" generates "Whether or not to enable Wine.". 
+  **CRITICAL**: Always describe what this app or module is used for. For example: "dolphin (KDE file manager)" or "xkb (keyboard layout configuration)"".
 - `packages`: List of packages to install in `environment.systemPackages`, e.g., `(with pkgs; [package1 package2])`
 - `persistConfig`: Persistence configuration matching `nerv.opt.persist` structure, e.g., `{ derivative.homeDirectories = [ ".wine" ]; }`
 - `extraConfig`: Any additional NixOS configuration, e.g., `{ nerv.opt.user.extraGroups = [ "video" ]; }`
@@ -210,7 +211,7 @@ Simple module with packages only:
 stdModules { inherit config lib pkgs; } [
   [
     "nerv.opt.apps.vlc"
-    "VLC"
+    "VLC (Video player)"
     (with pkgs; [ vlc ])
     {}
     {}
@@ -343,6 +344,7 @@ Store persistence cfg of packages that are package manager in as derivative in `
 
 1. Make changes to relevant module files.
    **CRITICAL**: Update `./MODULES.md` on adding new modules or module rename.
+   **CRITICAL**: Always describe what this module is used for. For example: "dolphin (KDE file manager)" or "xkb (keyboard layout configuration)"".
    **CRITICAL:** Always update `modules/nixos/opt/user/README.zsh.md` after adding new packages to Zsh or changing keybindings. Keep this file up to date.
 2. **CRITICAL**: you must `git add` created files. Files must be in git, otherwise nix flake cannot build.
 2. Test build: `nixos-rebuild build --flake .#xenon`

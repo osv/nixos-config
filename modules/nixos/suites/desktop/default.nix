@@ -63,6 +63,7 @@ in
         # _1password = on;
         firefox = on;
         chromium = on; # Need for testing some frontend shit
+        mpv = on;
         vlc = on;
         qimgv = on;
         zathura = on;

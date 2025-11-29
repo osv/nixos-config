@@ -28,6 +28,7 @@
 | `nerv.opt.apps.logseq` | Knowledge management tool |
 | `nerv.opt.apps.looking-glass-client` | VM display client |
 | `nerv.opt.apps.lutris` | Gaming platform |
+| `nerv.opt.apps.mpv` | Media player with uosc UI |
 | `nerv.opt.apps.obs` | Broadcasting/recording software |
 | `nerv.opt.apps.office` | Office suite applications |
 | `nerv.opt.apps.pcsx2` | PlayStation 2 emulator |

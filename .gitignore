@@ -16,4 +16,5 @@ options.json
 *~
 
 .direnv
-.claude
+# claude
+settings.local.json
