@@ -15,7 +15,7 @@ let
     gruvbox = themeDefinitions.themes.gruvbox;
     dirty = themeDefinitions.themes.dirty;
     twentyTwo = themeDefinitions.themes.twentyTwo;
-    material = themeDefinitions.themes.material;
+    rosePineDawn = themeDefinitions.themes.rosePineDawn;
   };
 
   # Generate theme files using the wezterm helper

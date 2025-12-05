@@ -138,33 +138,31 @@ with lib;
       selectionBg = blue;
       selectionFg = background;
     };
-    material = rec {
-      themeName = "Material";
-      # Base24 Material from tinted-terminal
-      # https://github.com/tinted-theming/tinted-terminal
-      background = "#eaeaea";  # light gray background
-      foreground = "#c3c3c3";  # light gray foreground
-      black = "#eaeaea";       # ansi[0] - same as background
-      red = "#b7141e";         # ansi[1]
-      green = "#457b23";       # ansi[2]
-      yellow = "#53a4f3";      # ansi[3] - light blue
-      blue = "#134eb2";        # ansi[4]
-      purple = "#550087";      # ansi[5]
-      cyan = "#0e707c";        # ansi[6]
-      white = "#eeeeee";       # ansi[7]
-      blackHi = "#424242";     # brights[0] - dark gray
-      redHi = "#e83a3f";       # brights[1]
-      greenHi = "#7aba39";     # brights[2]
-      yellowHi = "#fee92e";    # brights[3]
-      blueHi = "#53a4f3";      # brights[4]
-      purpleHi = "#a94dbb";    # brights[5]
-      cyanHi = "#26bad1";      # brights[6]
-      whiteHi = "#d8d8d8";     # brights[7]
+    rosePineDawn = rec {
+      themeName = "Rose Pine Dawn";
+      background = "#faf4ed";
+      foreground = "#575279";
+      black = "#f2e9e1";       # palette 0
+      red = "#b4637a";         # palette 1
+      green = "#286983";       # palette 2
+      yellow = "#ea9d34";      # palette 3
+      blue = "#56949f";        # palette 4
+      purple = "#907aa9";      # palette 5
+      cyan = "#d7827e";        # palette 6
+      white = "#575279";       # palette 7
+      blackHi = "#9893a5";     # palette 8
+      redHi = "#b4637a";       # palette 9
+      greenHi = "#286983";     # palette 10
+      yellowHi = "#ea9d34";    # palette 11
+      blueHi = "#56949f";      # palette 12
+      purpleHi = "#907aa9";    # palette 13
+      cyanHi = "#d7827e";      # palette 14
+      whiteHi = "#575279";     # palette 15
       mouseFg = blue;
-      cursorFG = "#c3c3c3";    # cursor_border color
+      cursorFG = "#575279";    # cursor-color
       borderColor = background;
-      selectionBg = "#c3c3c3"; # selection background
-      selectionFg = "#424242"; # selection foreground
+      selectionBg = "#dfdad9"; # selection-background
+      selectionFg = "#575279"; # selection-foreground
     };
   };
 }

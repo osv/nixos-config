@@ -14,7 +14,7 @@ let
     "C-3" = themeDefinitions.themes.gruvbox;
     "C-4" = themeDefinitions.themes.dirty;
     "C-5" = themeDefinitions.themes.twentyTwo;
-    "C-6" = themeDefinitions.themes.material;
+    "C-6" = themeDefinitions.themes.rosePineDawn;
   };
 
   # pick "Dracula" as the default theme

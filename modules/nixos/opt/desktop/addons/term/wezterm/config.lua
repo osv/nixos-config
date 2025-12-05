@@ -95,7 +95,7 @@ local theme_files = {
   gruvbox = 'gruvbox',
   dirty = 'dirty',
   twentyTwo = 'twentyTwo',
-  material = 'material',
+  rosePineDawn = 'rosePineDawn',
 }
 
 for name, file in pairs(theme_files) do
@@ -257,7 +257,7 @@ config.keys = {
   { key = '3', mods = 'CTRL', action = make_theme_action('gruvbox') },
   { key = '4', mods = 'CTRL', action = make_theme_action('dirty') },
   { key = '5', mods = 'CTRL', action = make_theme_action('twentyTwo') },
-  { key = '6', mods = 'CTRL', action = make_theme_action('material') },
+  { key = '6', mods = 'CTRL', action = make_theme_action('rosePineDawn') },
 
   -- tabs
   { key = "t", mods="LEADER", action = act { SpawnTab = "CurrentPaneDomain" } },
