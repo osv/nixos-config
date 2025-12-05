@@ -48,6 +48,7 @@ in
     (mkIf (cfg.enable && cfg.consoleFile.enable) {
       environment.systemPackages = with pkgs; [
         nnn
+        yazi                    # like emacs dirvish
         ncdu                    # interactive du replacement
         du-dust                 # `dust` - tree directories
         duf                     # du-like but with table
