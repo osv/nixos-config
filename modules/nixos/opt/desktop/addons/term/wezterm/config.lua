@@ -255,9 +255,9 @@ config.keys = {
   { key = '1', mods = 'CTRL', action = make_theme_action('dracula') },
   { key = '2', mods = 'CTRL', action = make_theme_action('light') },
   { key = '3', mods = 'CTRL', action = make_theme_action('gruvbox') },
-  { key = '4', mods = 'CTRL', action = make_theme_action('dirty') },
+  { key = '4', mods = 'CTRL', action = make_theme_action('rosePineDawn') },
   { key = '5', mods = 'CTRL', action = make_theme_action('twentyTwo') },
-  { key = '6', mods = 'CTRL', action = make_theme_action('rosePineDawn') },
+  { key = '6', mods = 'CTRL', action = make_theme_action('dirty') },
 
   -- tabs
   { key = "t", mods="LEADER", action = act { SpawnTab = "CurrentPaneDomain" } },

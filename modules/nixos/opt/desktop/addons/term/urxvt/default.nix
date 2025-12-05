@@ -12,9 +12,9 @@ let
     "C-1" = themeDefinitions.themes.dracula;
     "C-2" = themeDefinitions.themes.light;
     "C-3" = themeDefinitions.themes.gruvbox;
-    "C-4" = themeDefinitions.themes.dirty;
+    "C-4" = themeDefinitions.themes.rosePineDawn;
     "C-5" = themeDefinitions.themes.twentyTwo;
-    "C-6" = themeDefinitions.themes.rosePineDawn;
+    "C-6" = themeDefinitions.themes.dirty;
   };
 
   # pick "Dracula" as the default theme
