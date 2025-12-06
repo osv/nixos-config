@@ -98,7 +98,8 @@ allKeys c =
   [ ("M-<Space>",   cmd "Terminal"                                $ spawn myTerminal)
   , ("M-f",         cmd "Web browser"                             $ spawn myBrowser)
   , ("M-z",         cmd "Zoom App (boomer)"                       $ spawn "boomer")
-  , ("M-M1-h",      cmd "Launch htop"                             $ spawn (myTerminal ++ " -e htop"))]
+  , ("M-M1-h",      cmd "Launch htop"                             $ spawn (myTerminal ++ " -e htop"))
+  , ("M-l",         cmd "Lock screen"                             $ spawn "my-screenlock")]
 
   ^++^ subKeys "Monitors"
   [ ("M-.",         cmd "Switch focus to next monitor"              nextScreen)

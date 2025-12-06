@@ -92,6 +92,7 @@
 | `nerv.opt.desktop.addons.picom` | X11 compositor |
 | `nerv.opt.desktop.addons.plasma-hack` | KDE Plasma customizations |
 | `nerv.opt.desktop.addons.rofi` | Application launcher |
+| `nerv.opt.desktop.addons.screenlock` | Screen lock with betterlockscreen + xidlehook |
 | `nerv.opt.desktop.addons.swappy` | Screenshot annotation tool |
 | `nerv.opt.desktop.addons.term` | Terminal configuration |
 | `nerv.opt.desktop.addons.term.kitty` | Kitty terminal emulator with Dracula theme |

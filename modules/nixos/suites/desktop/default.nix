@@ -56,6 +56,11 @@ in
           keyring = on // {
             backend = "pass";
           };
+          screenlock = on // {
+            # TODO: sync with XMonad wallpaper (My/Main.hs)
+            wallpaper = "$HOME/Pictures/wallpapers/fish.jpg";
+            effect = "blur";
+          };
         };
       };
 
