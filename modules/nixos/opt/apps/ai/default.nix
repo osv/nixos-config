@@ -64,7 +64,7 @@ in {
     })
     (mkIf (cfg.enable && cfg.claude-desktop) {
       environment.systemPackages = with pkgs; [ claude-desktop ];
-      nerv.opt.persist.state.homeDirectories = [ ".config/Claude" ".claude" ];
+      nerv.opt.persist.state.homeDirectories = [ ".config/Claude" ];
     })
     (mkIf (cfg.enable && cfg.code-cursor) {
       environment.systemPackages = with pkgs; [ code-cursor ];
@@ -77,6 +77,7 @@ in {
       nerv.opt.persist.state.homeDirectories = [
         ".config/claude"
         ".config/direnv" # Add persistence for direnv config
+        ".claude"
       ];
 
       # Add zsh configuration for Claude
