@@ -37,6 +37,8 @@ in {
       persistHome = yes;
     };
 
+    opt.hardware.autorandr = on;
+
     archetypes = { workstation = on; gaming=off; };
     # Temp
     suites = {

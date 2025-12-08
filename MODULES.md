@@ -122,6 +122,7 @@
 | Option | Description |
 |--------|-------------|
 | `nerv.opt.hardware.audio` | Audio subsystem configuration |
+| `nerv.opt.hardware.autorandr` | Automatic display configuration on hotplug |
 | `nerv.opt.hardware.fingerprint` | Fingerprint reader support |
 | `nerv.opt.hardware.networking` | Network configuration and tools |
 

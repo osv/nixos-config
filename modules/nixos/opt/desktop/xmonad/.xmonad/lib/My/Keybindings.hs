@@ -99,11 +99,14 @@ allKeys c =
   , ("M-f",         cmd "Web browser"                             $ spawn myBrowser)
   , ("M-z",         cmd "Zoom App (boomer)"                       $ spawn "boomer")
   , ("M-M1-h",      cmd "Launch htop"                             $ spawn (myTerminal ++ " -e htop"))
-  , ("M-l",         cmd "Lock screen"                             $ spawn "my-screenlock")]
+  , ("M-S-l",       cmd "Lock screen"                             $ spawn "my-screenlock")]
 
   ^++^ subKeys "Monitors"
   [ ("M-.",         cmd "Switch focus to next monitor"              nextScreen)
-  , ("M-,",         cmd "Switch focus to prev monitor"              prevScreen)]
+  , ("M-,",         cmd "Switch focus to prev monitor"              prevScreen)
+  , ("M-<F2>",      cmd "Display: laptop only"                      $ spawn "autorandr laptop")
+  , ("M-<F3>",      cmd "Display: external only"                    $ spawn "autorandr external")
+  , ("M-<F4>",      cmd "Display: dual monitors"                    $ spawn "autorandr dual")]
 
   -- Switch layouts
   ^++^ subKeys "Switch layouts"
