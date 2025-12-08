@@ -117,6 +117,11 @@ in
               notify-send "Display" "Switched to profile: $AUTORANDR_CURRENT_PROFILE"
             fi
           '';
+          "set-wallpaper" = ''
+            if command -v my-set-wallpaper &> /dev/null; then
+              my-set-wallpaper || true
+            fi
+          '';
         };
       };
     };

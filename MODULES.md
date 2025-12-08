@@ -98,7 +98,8 @@
 | `nerv.opt.desktop.addons.term.kitty` | Kitty terminal emulator with Dracula theme |
 | `nerv.opt.desktop.addons.term.urxvt` | URxvt with dynamic theming |
 | `nerv.opt.desktop.addons.term.wezterm` | WezTerm with font/theme switching hotkeys |
-| `nerv.opt.desktop.addons.wallpapers` | Wallpaper management |
+| `nerv.opt.desktop.addons.wallpaper` | Desktop wallpaper setter with feh (provides my-set-wallpaper script) |
+| `nerv.opt.desktop.addons.wallpapers` | Wallpaper sync from wallpapers-new repo to ~/Pictures/wallpapers |
 | `nerv.opt.desktop.addons.waybar` | Wayland status bar |
 | `nerv.opt.desktop.addons.wofi` | Wayland application launcher |
 | `nerv.opt.desktop.addons.xdg-portal` | XDG desktop portals |

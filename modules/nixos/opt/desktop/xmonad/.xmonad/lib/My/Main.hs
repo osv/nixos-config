@@ -30,7 +30,7 @@ import XMonad.Hooks.PrettyStatusBar (PSBConfig(psbOutput, psbIcons))
 
 myStartupHook :: X ()
 myStartupHook = do
-  spawnOnce "feh --bg-scale ~/Pictures/wallpapers/fish.jpg"
+  spawnOnce "my-set-wallpaper"
   spawnOnce "sleep 1 && polybar -c ~/.config/xmonad-polybar/temp-polybar.ini &"
   spawnOnce "xsetroot -cursor_name left_ptr" -- I don't like default "X" cursor over desktop
   setWMName "LG3D"

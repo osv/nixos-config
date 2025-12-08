@@ -22,6 +22,7 @@ in
           xresources = on;
 
           wallpapers = on;
+          wallpaper = on;
           keyring = on;
           electron-support = on;
 
@@ -61,7 +62,6 @@ in
 
     environment.systemPackages = with pkgs; [
       killall
-      feh # TODO remove in favor theme setup
       polybarFull
       zenity # M-F1 Help Dialog
       setroot
