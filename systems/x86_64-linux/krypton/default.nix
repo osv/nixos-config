@@ -43,7 +43,7 @@ in {
     # Temp
     suites = {
       video = fuckOff;
-      social = fuckOff;
+      social = on;
       media = fuckOff;
     };
     opt.tools = { appimage-run = fuckOff; };
