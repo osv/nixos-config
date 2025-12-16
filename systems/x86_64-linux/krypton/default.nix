@@ -48,7 +48,7 @@ in {
     };
     opt.tools = { appimage-run = fuckOff; };
     opt.apps = {
-      firefox = fuckOff;
+      firefox = on;
       ai = {
         claude-desktop = no;
         code-cursor = no;
