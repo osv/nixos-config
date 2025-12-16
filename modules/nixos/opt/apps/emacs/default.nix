@@ -117,6 +117,7 @@ let
       gnuplot # :lang (org +gnuplot)
       pandoc # :lang org markdown latex
       graphviz # plantuml
+      python3Packages.grip # :lang (markdown +grip) - GitHub-flavored preview
     ];
   myEmacsPkg = emacsPkg // (pkgs.symlinkJoin {
     name = "my-emacs";
@@ -237,6 +238,9 @@ in
         git
         ripgrep
         gnutls # doom! for TLS connectivity
+      ]
+      ++ optionals (cfg.env.export) [
+        python3Packages.grip # :lang (markdown +grip) - GitHub-flavored preview
       ];
     };
 
