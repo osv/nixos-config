@@ -5,23 +5,27 @@ with lib.nerv;
 let
   cfg = config.nerv.opt.apps.ai;
   claude-but-logo = ./claude.png;
+  chii-logo = ./chii.png;
+  chii-style = ./chii-style.md;
 
-  my-claude = pkgs.writeShellScriptBin "my-claude" ''
-    #!/usr/bin/env bash
+  # Reusable function to display logo based on terminal type
+  displayLogo = logoPath: ''
+    LOGO_IMAGE="${logoPath}"
 
-    # Display Claude image based on terminal type
-    if [[ "$TERM" == "xterm-kitty" ]]; then
-      # Kitty terminal - use kitten icat (most optimized)
-      kitten icat --align left ${claude-but-logo}
-    elif [[ "$TERM_PROGRAM" == "WezTerm" ]] || [[ "$TERM_PROGRAM" == "iTerm.app" ]] || [[ "$TERM" == "xterm-konsole" ]] || [[ -n "$KONSOLE_VERSION" ]]; then
-      # WezTerm, iTerm2, or Konsole - use iTerm2 image protocol
-      if [[ -f "${claude-but-logo}" ]]; then
+    # Display image based on terminal type
+    if [[ -f "$LOGO_IMAGE" ]]; then
+      if [[ "$TERM" == "xterm-kitty" ]]; then
+        kitten icat --align left "$LOGO_IMAGE"
+      elif [[ "$TERM_PROGRAM" == "WezTerm" ]] || [[ "$TERM_PROGRAM" == "iTerm.app" ]] || [[ "$TERM" == "xterm-konsole" ]] || [[ -n "$KONSOLE_VERSION" ]]; then
         printf '\033]1337;File=inline=1:'
-        base64 < ${claude-but-logo}
+        base64 < "$LOGO_IMAGE"
         printf '\a\n'
       fi
     fi
+  '';
 
+  # Reusable environment setup for Claude
+  claudeEnvSetup = ''
     # Set environment variables only if not already set
     : ''${BASH_MAX_TIMEOUT_MS:=600000}
     : ''${BASH_DEFAULT_TIMEOUT_MS:=300000}
@@ -41,9 +45,38 @@ let
     # # force ansi
     # export COLORTERM=16
     # export TERM=xterm
+  '';
+
+  my-claude = pkgs.writeShellScriptBin "my-claude" ''
+    #!/usr/bin/env bash
+
+    ${displayLogo claude-but-logo}
+    ${claudeEnvSetup}
 
     # Execute claude command with all arguments
     PATH="/run/current-system/sw/bin:$PATH" exec claude "$@"
+  '';
+
+  ask-chii = pkgs.writeShellScriptBin "ask-chii" ''
+    #!/usr/bin/env bash
+
+    ${displayLogo chii-logo}
+    ${claudeEnvSetup}
+
+    # If no arguments - run interactive claude and exit when done
+    if [[ $# -eq 0 ]]; then
+      PATH="/run/current-system/sw/bin:$PATH" claude
+      exit $?
+    fi
+
+    # Read Chii style from file
+    CHII_STYLE="$(cat ${chii-style})"
+
+    # Combine style with user prompt and pipe through glow for pretty markdown
+    PATH="/run/current-system/sw/bin:$PATH" claude -p "$CHII_STYLE
+
+Пользователь спрашивает:
+$*" | ${pkgs.glow}/bin/glow
   '';
 in {
   options.nerv.opt.apps.ai = with types; {
@@ -71,7 +104,7 @@ in {
       nerv.opt.persist.state.homeDirectories = [ ".cursor" ".config/Cursor" ];
     })
     (mkIf (cfg.enable && cfg.claude.enable) {
-      environment.systemPackages = [ my-claude ];
+      environment.systemPackages = [ my-claude ask-chii ];
 
       nerv.opt.persist.state.homeFiles = [ ".claude.json" ];
       nerv.opt.persist.state.homeDirectories = [
