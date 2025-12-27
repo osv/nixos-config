@@ -440,6 +440,10 @@ stars and the space after."
   (markdown-hide-urls t)
   (markdown-hide-markup t))
 
+;; Grip - GitHub-flavored Markdown preview
+(after! grip-mode
+  (setq grip-theme 'light))
+
 ;; Sometimes I want to start fresh emacs without changing config and run test nix rebuild
 (when (file-readable-p "~/.config/doom/config-local.el")
   (load "~/.config/doom/config-local.el"))

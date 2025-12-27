@@ -240,7 +240,7 @@ in
         gnutls # doom! for TLS connectivity
       ]
       ++ optionals (cfg.env.export) [
-        python3Packages.grip # :lang (markdown +grip) - GitHub-flavored preview
+        go-grip # :lang (markdown +grip) - GitHub-flavored preview
       ];
     };
 
