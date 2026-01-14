@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a NixOS flake configuration repository using the Snowfall library framework. The primary host system is "xenon" with additional hosts "argon" and "jasper". The configuration uses ZFS, impermanence (optionally on tmpfs root), and comprehensive modular organization. Update this file on adding or removing hosts.
+This is a NixOS flake configuration repository using the Snowfall library framework. The primary host system is "xenon" with additional hosts "argon", "jasper", and "krypton". The configuration uses ZFS, impermanence (optionally on tmpfs root), and comprehensive modular organization. Update this file on adding or removing hosts.
 
 ## Key Commands
 
@@ -147,6 +147,7 @@ Development shells provide isolated environments for different programming langu
 
 ### Host-Specific Notes
 - **xenon**: Main workstation with NVIDIA GPU, gaming support, ZFS on NVMe
+- **krypton**: Dell Latitude 5530 laptop, portable workstation configuration
 - Uses custom persistence paths under `/persist` for stateful data
 - Configured with workstation and gaming archetypes
 
