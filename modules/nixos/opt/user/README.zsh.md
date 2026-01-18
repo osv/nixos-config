@@ -20,7 +20,7 @@ This document provides a comprehensive list of commands and functionality availa
 - `Ctrl+Left`: Move backward by word
 - `Ctrl+Right`: Move forward by word
 - `Ctrl+G`: **fzf-marks** - Jump to bookmarked directories
-- `Ctrl+X Ctrl+F`: Force file path completion (like Emacs find-file)
+- `Ctrl+C /`: Force file path completion
 
 ## Available Commands by Category
 

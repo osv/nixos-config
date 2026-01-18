@@ -134,10 +134,10 @@ in {
               bindkey '^[[A' history-beginning-search-backward
               bindkey '^[[B' history-beginning-search-forward
 
-              # Ctrl+X Ctrl+F - force file path completion (like Emacs find-file)
+              # Ctrl+C / - force file path completion
               zle -C complete-files complete-word _generic
               zstyle ':completion:complete-files:*' completer _files
-              bindkey '^X^F' complete-files
+              bindkey '^C/' complete-files
 
               key[Home]="''${terminfo[khome]}"
               key[End]="''${terminfo[kend]}"
