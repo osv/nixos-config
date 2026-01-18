@@ -20,6 +20,7 @@ This document provides a comprehensive list of commands and functionality availa
 - `Ctrl+Left`: Move backward by word
 - `Ctrl+Right`: Move forward by word
 - `Ctrl+G`: **fzf-marks** - Jump to bookmarked directories
+- `Ctrl+X Ctrl+F`: Force file path completion (like Emacs find-file)
 
 ## Available Commands by Category
 
@@ -141,7 +142,8 @@ Automatically inserts and manages matching pairs:
 ### History Configuration
 - Size: 30,000 commands
 - Location: `$XDG_DATA_HOME/zsh/zsh_history`
-- Ignores space-prefixed commands
+- Ignores space-prefixed commands (prefix with space to hide from history)
+- Removes all duplicate entries, keeping only the latest
 - Removes duplicates first when history is full
 - Extended history format with timestamps
 - Shared between all ZSH sessions

@@ -15,6 +15,9 @@ title: README
 - Secrets managed by [SOPS](https://github.com/Mic92/sops-nix).
 - Manuals for myself. Convert markdown readme files in this repo into HTML and put into [~/Manuals](~/Manuals) directory.
 
+# Documentation
+- [ZSH Configuration](modules/nixos/opt/user/README.zsh.md) - Shell commands, key bindings, and plugins
+
 # Helpful tips
 - Switch to new config `nrs` or `nh os switch .` or `nixos-rebuild switch --flake .#xenon`
 

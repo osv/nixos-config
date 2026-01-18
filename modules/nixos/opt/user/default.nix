@@ -114,7 +114,7 @@ in {
               size = 30000;
               save = 30000;
               path = "$XDG_DATA_HOME/zsh/zsh_history";
-              # ignoreAllDups = true;
+              ignoreAllDups = true;
               ignoreSpace = true;
               expireDuplicatesFirst = true;
               extended = true;
@@ -133,6 +133,11 @@ in {
               # Key bindings
               bindkey '^[[A' history-beginning-search-backward
               bindkey '^[[B' history-beginning-search-forward
+
+              # Ctrl+X Ctrl+F - force file path completion (like Emacs find-file)
+              zle -C complete-files complete-word _generic
+              zstyle ':completion:complete-files:*' completer _files
+              bindkey '^X^F' complete-files
 
               key[Home]="''${terminfo[khome]}"
               key[End]="''${terminfo[kend]}"
