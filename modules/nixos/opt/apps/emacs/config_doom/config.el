@@ -146,7 +146,7 @@
 (global-set-key [S-f4] 'previous-error)
 (global-set-key [f12] 'toggle-truncate-lines)
 (global-set-key [C-f5] 'dired-jump)
-(global-set-key (kbd "C-c /") 'company-files) ;; File path completion (same as zsh)
+(global-set-key (kbd "C-x /") 'company-files) ;; File path completion (same as zsh)
 
 ;; try to make projectile always open when in project
 ;;(setq projectile-switch-project-action 'treemacs)
