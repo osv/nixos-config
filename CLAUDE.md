@@ -355,6 +355,36 @@ Store persistence cfg of packages that are package manager in as derivative in `
 
 where `xenon` - is hostname example. Current hostname: !`hostname`
 
+### Commit Message Convention
+
+Follow the established commit message style in this repository:
+
+**Format**:
+```
+<scope>: <description>
+```
+or simply:
+```
+<description>
+```
+
+**Rules**:
+1. **Language**: English only
+2. **Scope** (optional): Indicates the area of changes
+   - Examples: `zsh`, `emacs`, `firefox`, `CLAUDE.md`, `zsh/emacs`
+   - Use `/` to combine related scopes
+3. **Description**: Brief description of changes
+   - Start with a capital letter
+   - Use imperative mood (command form)
+   - Common verbs: `Add`, `Fix`, `Update`, `Enable`, `Disable`, `Remove`, `Move`, `Replace`, `Swap`, `Switch`, `Refactor`
+4. **Multiple changes**: Combine with `and`
+
+**Examples from this repository**:
+- `zsh/emacs: Change file completion keybinding to Ctrl+X /`
+- `firefox: Enable Firefox and migrate search engine favicons to local storage`
+- `Add yazi file manager and update Chii style emoji options`
+- `Fix Krypton disco`
+
 ## Notes
 
 - Tests are part of NixOS module system checks and assertions
