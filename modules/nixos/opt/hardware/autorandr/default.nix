@@ -10,6 +10,27 @@ with lib.nerv;
 
 let
   cfg = config.nerv.opt.hardware.autorandr;
+
+  # Fake EDID that will never match any real monitor
+  # Used for profiles that should only be activated manually
+  fakeEdid = "00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00";
+
+  # Helper for dual-monitor profile fingerprints
+  # active = true → real fingerprint (auto-selected)
+  # active = false → fake EDID fingerprint (manual only, never auto-matches)
+  mkDualFingerprint = { active, includeLaptop ? true }:
+    if active then {
+      "${cfg.laptop.output}" = "*";
+      "${cfg.external.output}" = "*";
+    } else
+      # Use fake EDID for outputs that are enabled in config
+      # This satisfies autorandr's requirement while preventing auto-match
+      (if includeLaptop then {
+        "${cfg.laptop.output}" = fakeEdid;
+        "${cfg.external.output}" = fakeEdid;
+      } else {
+        "${cfg.external.output}" = fakeEdid;
+      });
 in
 {
   options.nerv.opt.hardware.autorandr = with types; {
@@ -23,9 +44,14 @@ in
     external = {
       output = mkOpt str "HDMI-1" "External display output name";
       mode = mkOpt str "2560x1440" "External display resolution";
+      width = mkOpt str (builtins.head (lib.splitString "x" cfg.external.mode))
+        "External display width in pixels (used for positioning laptop display in dual mode)";
     };
 
     defaultProfile = mkOpt str "laptop" "Default profile when no external monitor detected";
+
+    dualMode = mkOpt (enum [ "extend" "external-only" ]) "external-only"
+      "Behavior when both monitors are connected: 'extend' - use both monitors, 'external-only' - disable laptop display and use only external";
   };
 
   config = mkIf cfg.enable {
@@ -76,17 +102,36 @@ in
           };
         };
 
+        # External only mode when both monitors connected
+        external-only = {
+          fingerprint = mkDualFingerprint {
+            active = cfg.dualMode == "external-only";
+            includeLaptop = false;  # laptop is disabled in this profile
+          };
+          config = {
+            "${cfg.laptop.output}" = {
+              enable = false;
+            };
+            "${cfg.external.output}" = {
+              enable = true;
+              primary = true;
+              mode = cfg.external.mode;
+              position = "0x0";
+            };
+          };
+        };
+
         # Dual monitor profile (extended mode)
         dual = {
-          fingerprint = {
-            "${cfg.laptop.output}" = "*";
-            "${cfg.external.output}" = "*";
+          fingerprint = mkDualFingerprint {
+            active = cfg.dualMode == "extend";
+            # includeLaptop = true by default (both monitors enabled)
           };
           config = {
             "${cfg.laptop.output}" = {
               enable = true;
               mode = cfg.laptop.mode;
-              position = "2560x0"; # right of external
+              position = "${cfg.external.width}x0";
             };
             "${cfg.external.output}" = {
               enable = true;

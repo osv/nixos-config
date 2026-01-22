@@ -19,7 +19,7 @@ let
 in {
   options.nerv.opt.desktop.addons.screenlock = with types; {
     enable = mkBoolOpt false "Whether to enable screen lock (betterlockscreen + xidlehook).";
-    inactiveInterval = mkOpt int 10 "Minutes of inactivity before lock.";
+    inactiveInterval = mkOpt int 20 "Minutes of inactivity before lock.";
     notifyInterval = mkOpt int 2 "Minutes before lock/suspend to show notification.";
     suspendInterval = mkOpt int 30 "Minutes after lock before suspend (0 to disable).";
     effect = mkOpt str "dim" "Lock screen effect (dim, blur, dimblur, pixel, color).";
