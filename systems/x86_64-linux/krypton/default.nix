@@ -4,6 +4,7 @@ with lib;
 with lib.nerv;
 let
   isRootOnTmpFS = true;
+  userName = config.nerv.opt.user.name;
   discoDevices = import ./disco-zfs.nix {
     ssdDisk = "/dev/disk/by-id/nvme-KINGSTON_SKC3000S1024G_50026B7686493B4A";
     useRootOnTmpFs = isRootOnTmpFS;
@@ -171,6 +172,22 @@ in {
 
   boot.loader.grub.splashImage = lib.mkForce ../../../assets/grub/akira.png;
   boot.loader.grub.backgroundColor = lib.mkForce "#09090B";
+
+  # Set headphones as default audio output at boot (user can change via pavucontrol)
+  system.activationScripts.wireplumber-default-headphones.text = ''
+    ${lib.nerv.sysEcho "Audio" "Setting default audio route to headphones"}
+    STATE_DIR="/home/${userName}/.local/state/wireplumber"
+    STATE_FILE="$STATE_DIR/default-routes"
+
+    mkdir -p "$STATE_DIR"
+    cat > "$STATE_FILE" << 'EOF'
+[default-routes]
+alsa_card.pci-0000_00_1f.3:output:analog-output-headphones={"channelVolumes":[0.125000, 0.125000], "channelMap":["FL", "FR"], "latencyOffsetNsec":0, "mute":false}
+alsa_card.pci-0000_00_1f.3:profile:output:analog-stereo+input:analog-stereo=["analog-output-headphones"]
+EOF
+
+    chown -R ${userName}:users "$STATE_DIR"
+  '';
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

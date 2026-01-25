@@ -341,6 +341,83 @@ e.g. `nerv.opt.persist.state.homeDirectories = [ '.config/github-copilot' ]`
 
 Store persistence cfg of packages that are package manager in as derivative in `modules/nixos/persist/common`. Add options that must be true by default.
 
+### Boot-time Initialization for tmpfs Root
+
+On systems with `isRootOnTmpFS = true`, files in home directory are lost on reboot. For cases where you need to create default files at boot (not persist them), use one of these approaches:
+
+**When to use**:
+- Setting default application state that user can modify during session
+- Creating initial config files that will be regenerated on next boot
+- Host-specific initialization that shouldn't be in persistence
+
+**Approach 1: System Activation Script** (recommended for pre-login init)
+Runs at every boot, before user login. Use for files that must exist before user services start.
+
+```nix
+# In host config (systems/x86_64-linux/<host>/default.nix)
+# Get username from user module (don't hardcode!)
+let userName = config.nerv.opt.user.name;
+in {
+  system.activationScripts.<name>.text = ''
+    mkdir -p /home/${userName}/<path>
+    cat > /home/${userName}/<path>/<file> << 'EOF'
+    <content>
+    EOF
+    chown -R ${userName}:users /home/${userName}/<path>
+  '';
+}
+```
+
+**Approach 2: systemd User Service** (for post-login init)
+Runs after user login. Use when you need user environment or when timing with other user services matters.
+
+```nix
+nerv.home.extraOptions = {
+  systemd.user.services.<name> = {
+    Unit = {
+      Description = "<description>";
+      Before = [ "<service-to-run-before>.service" ];  # optional
+    };
+    Service = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "<name>" ''
+        mkdir -p "$HOME/<path>"
+        cat > "$HOME/<path>/<file>" << 'EOF'
+        <content>
+        EOF
+      '';
+    };
+    Install.RequiredBy = [ "<service>.service" ];  # or WantedBy = [ "default.target" ];
+  };
+};
+```
+
+**Comparison**:
+| Approach | Runs | Use case |
+|----------|------|----------|
+| `system.activationScripts` | Every boot, before login | Files needed by system or before user services |
+| `systemd.user.services` | After user login | Files needed by specific user services |
+
+**Note**: For files that should persist across reboots, use `nerv.opt.persist.*` instead.
+
+### Activation script
+
+**Colored output helpers** (in `lib/module/default.nix`):
+- `sysEcho tag msg` — for `system.activationScripts` (magenta)
+- `homeEcho tag msg` — for `nerv.home.activation` (blue)
+
+Usage:
+```nix
+system.activationScripts.foo.text = ''
+  ${lib.nerv.sysEcho "MyTag" "Doing something..."}
+'';
+
+nerv.home.activation.bar = ''
+  ${homeEcho "MyTag" "Doing something..."}
+'';
+```
+
 ## Development Workflow
 
 1. Make changes to relevant module files.

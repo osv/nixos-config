@@ -144,7 +144,7 @@ in {
 
           # Check and add statusLine configuration if not present
           if ! ${pkgs.jq}/bin/jq -e '.statusLine' $HOME/.claude/settings.json >/dev/null 2>&1; then
-            echo "Setting up Claude Code statusline..."
+            ${homeEcho "Claude" "Setting up statusline..."}
 
             # Copy the statusline script
             mkdir -p $HOME/.claude
@@ -157,17 +157,17 @@ in {
 
             if [[ $? -eq 0 ]]; then
               mv $HOME/.claude/settings.json.tmp $HOME/.claude/settings.json
-              echo "Claude Code statusline configured"
+              ${homeEcho "Claude" "Statusline configured"}
               SETTINGS_MODIFIED=true
             else
               rm -f $HOME/.claude/settings.json.tmp
-              echo "Failed to configure Claude Code statusline"
+              ${homeEcho "Claude" "Failed to configure statusline"}
             fi
           fi
 
           # Check and add cleanupPeriodDays if not present
           if ! ${pkgs.jq}/bin/jq -e '.cleanupPeriodDays' $HOME/.claude/settings.json >/dev/null 2>&1; then
-            echo "Setting Claude Code cleanup period to ${toString cfg.claude.cleanup-days} days..."
+            ${homeEcho "Claude" "Setting cleanup period to ${toString cfg.claude.cleanup-days} days..."}
 
             # Update settings.json to add cleanupPeriodDays
             ${pkgs.jq}/bin/jq '. + {"cleanupPeriodDays": ${toString cfg.claude.cleanup-days}}' \
@@ -175,16 +175,16 @@ in {
 
             if [[ $? -eq 0 ]]; then
               mv $HOME/.claude/settings.json.tmp $HOME/.claude/settings.json
-              echo "Claude Code cleanup period configured"
+              ${homeEcho "Claude" "Cleanup period configured"}
               SETTINGS_MODIFIED=true
             else
               rm -f $HOME/.claude/settings.json.tmp
-              echo "Failed to configure Claude Code cleanup period"
+              ${homeEcho "Claude" "Failed to configure cleanup period"}
             fi
           fi
 
           if [[ "$SETTINGS_MODIFIED" == "true" ]]; then
-            echo "Claude Code settings updated successfully"
+            ${homeEcho "Claude" "Settings updated successfully"}
           fi
         fi
       '';

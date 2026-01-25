@@ -160,7 +160,7 @@ in {
 
     system.activationScripts = {
       homedir.text = ''
-        echo "[Persist] Creating home dirs ${cfg.persistRootDir}/{state,derivative,cache}/home"
+        ${sysEcho "Persist" "Creating home dirs ${cfg.persistRootDir}/{state,derivative,cache}/home"}
         mkdir -p ${cfg.persistRootDir}/state/home
         mkdir -p ${cfg.persistRootDir}/derivative/home
         mkdir -p ${cfg.persistRootDir}/cache/home

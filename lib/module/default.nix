@@ -22,6 +22,14 @@ with lib; rec {
   fuckOff = { enable = lib.mkForce false; };
   fuckYes = lib.mkForce true;
 
+  # Colored echo for system activation scripts (magenta)
+  # Usage: ${sysEcho "Persist" "Creating home dirs..."}
+  sysEcho = tag: msg: ''echo -e "\033[0;35m[${tag}]\033[0m ${msg}"'';
+
+  # Colored echo for home activation scripts (blue)
+  # Usage: ${homeEcho "Claude" "Setting up statusline..."}
+  homeEcho = tag: msg: ''echo -e "\033[0;34m[${tag}]\033[0m ${msg}"'';
+
   # Simplify creation of multiple standard modules in a single file
   # Usage: stdModules args [ [path description packages persistConfig extraConfig] ... ]
   # Example:

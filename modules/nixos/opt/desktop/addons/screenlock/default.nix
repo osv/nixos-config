@@ -86,18 +86,18 @@ in {
       wallpaperPath = toString cfg.wallpaper;
       cacheHash = "${wallpaperPath}:${cfg.effect}";
     in ''
-      echo "[Screenlock] Checking betterlockscreen wallpaper cache..."
+      ${homeEcho "Screenlock" "Checking betterlockscreen wallpaper cache..."}
       mkdir -p ${cacheDir}
       if [ ! -f ${cacheHashFile} ] || [ "$(cat ${cacheHashFile} 2>/dev/null)" != "${cacheHash}" ]; then
-        echo "[Screenlock] Updating wallpaper cache..."
+        ${homeEcho "Screenlock" "Updating wallpaper cache..."}
         if PATH="${pkgs.xorg.xrdb}/bin:$PATH" ${pkgs.betterlockscreen}/bin/betterlockscreen -u "${wallpaperPath}" --fx ${cfg.effect}; then
           echo "${cacheHash}" > ${cacheHashFile}
-          echo "[Screenlock] Wallpaper cache updated"
+          ${homeEcho "Screenlock" "Wallpaper cache updated"}
         else
-          echo "[Screenlock] WARNING: Failed to update wallpaper cache"
+          ${homeEcho "Screenlock" "WARNING: Failed to update wallpaper cache"}
         fi
       else
-        echo "[Screenlock] Wallpaper cache is up to date"
+        ${homeEcho "Screenlock" "Wallpaper cache is up to date"}
       fi
     '');
   };
