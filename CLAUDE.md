@@ -404,8 +404,8 @@ nerv.home.extraOptions = {
 ### Activation script
 
 **Colored output helpers** (in `lib/module/default.nix`):
-- `sysEcho tag msg` — for `system.activationScripts` (magenta)
-- `homeEcho tag msg` — for `nerv.home.activation` (blue)
+- `sysEcho tag msg` — for `system.activationScripts` (bold green)
+- `homeEcho tag msg` — for `nerv.home.activation` (bold blue)
 
 Usage:
 ```nix

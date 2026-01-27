@@ -37,6 +37,10 @@ in
 
     nerv.opt.user.extraGroups = [ "audio" ];
 
+    # Persist wireplumber state (audio routing, volume settings)
+    # Configure via pavucontrol, settings will be saved across reboots
+    nerv.opt.persist.state.homeDirectories = [ ".local/state/wireplumber" ];
+
     nerv.home.extraOptions = {
       systemd.user.services.mpris-proxy = {
         Unit.Description = "Mpris proxy";
