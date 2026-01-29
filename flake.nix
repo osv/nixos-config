@@ -2,13 +2,13 @@
   description = "OSV Config";
 
   inputs = {
-    # NixPkgs (nixos-22.11)
-    nixpkgs.url = "github:nixos/nixpkgs?ref=25.05-beta";
+    # NixPkgs (nixos-25.11)
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
 
     # NixPkgs Unstable (nixos-unstable)
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    home-manager.url = "github:nix-community/home-manager/master";
+    home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     flake-utils.url = "github:numtide/flake-utils";
@@ -37,7 +37,7 @@
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
 
     # Snowfall Lib
-    snowfall-lib.url = "github:snowfallorg/lib/dev";
+    snowfall-lib.url = "github:snowfallorg/lib";
     snowfall-lib.inputs.nixpkgs.follows = "nixpkgs";
 
     # Comma
@@ -63,15 +63,6 @@
       flake = false;
     };
 
-    # Discord Replugged plugins / themes
-    discord-tweaks = {
-      url = "github:NurMarvin/discord-tweaks";
-      flake = false;
-    };
-    discord-nord-theme = {
-      url = "github:DapperCore/NordCord";
-      flake = false;
-    };
 
     wallpapers-new = {
       url = "github:osv/wallpapers-new";
@@ -102,7 +93,7 @@
       ];
 
       overlays = with inputs; [
-        nur.overlay
+        nur.overlays.default
       ];
 
       systems.modules = with inputs; [

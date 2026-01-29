@@ -10,13 +10,13 @@ let
     # This is currently broken, but could speed up Discord startup in the future.
     withOpenAsar = false;
 
-    plugins = {
-      inherit (inputs) discord-tweaks;
-    };
+    # Add plugins here as flake inputs, e.g.:
+    # plugins = { inherit (inputs) some-plugin; };
+    plugins = { };
 
-    themes = {
-      inherit (inputs) discord-nord-theme;
-    };
+    # Add themes here as flake inputs, e.g.:
+    # themes = { inherit (inputs) some-theme; };
+    themes = { };
   };
 in
 {

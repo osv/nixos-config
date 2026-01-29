@@ -20,19 +20,22 @@ in
 
   config = mkMerge [
     (mkIf cfg.enable {
-      environment.systemPackages = with pkgs; [ gitFull gitAndTools.delta ];
+      environment.systemPackages = with pkgs; [ gitFull delta ];
 
       nerv.home.extraOptions = {
         programs = {
           git = {
             enable = true;
-            inherit (cfg) userName userEmail;
             lfs = on;
             signing = {
               key = cfg.signingKey;
               signByDefault = mkIf gpg.enable true;
             };
-            extraConfig = {
+            settings = {
+              user = {
+                name = cfg.userName;
+                email = cfg.userEmail;
+              };
               init = { defaultBranch = "master"; };
               pull = { rebase = true; };
               push = { autoSetupRemote = true; };
@@ -64,16 +67,16 @@ in
       };
     })
     (mkIf (cfg.enable && cfg.ghq) {
-      environment.systemPackages = with pkgs; [ gitAndTools.ghq ];
+      environment.systemPackages = with pkgs; [ ghq ];
 
       nerv.home.extraOptions = {
         programs.zsh = {
           initContent = ''
-source ${pkgs.gitAndTools.ghq}/share/zsh/site-functions/_ghq
+source ${pkgs.ghq}/share/zsh/site-functions/_ghq
 
 # ghq project switcher with fzf
 function ghq_cd() {
-  local proj=$(${lib.getExe pkgs.gitAndTools.ghq} list -p | ${lib.getExe pkgs.fzf} \
+  local proj=$(${lib.getExe pkgs.ghq} list -p | ${lib.getExe pkgs.fzf} \
       --no-multi \
       --prompt "Project: " \
       --preview "${lib.getExe pkgs.lsd} -1FAL --group-dirs first --icon always --color always {}")
@@ -83,9 +86,9 @@ function ghq_cd() {
 }
 
 '';
-          shellAliases = { gg = "${lib.getExe pkgs.gitAndTools.ghq} get"; };
+          shellAliases = { gg = "${lib.getExe pkgs.ghq} get"; };
         };
-        programs.git.extraConfig = {
+        programs.git.settings = {
           ghq = {
             root = [
               "~/work/other/nix-repos" # example of nix repos for inspiration

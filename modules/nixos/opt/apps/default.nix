@@ -224,7 +224,7 @@ stdModules { inherit config lib pkgs; } [
   [
     "nerv.opt.apps.telegram"
     "Telegram"
-    (with pkgs; [ tdesktop ])
+    (with pkgs; [ telegram-desktop ])
     { state.homeDirectories = [ ".local/share/TelegramDesktop" ]; }
     {}
   ]

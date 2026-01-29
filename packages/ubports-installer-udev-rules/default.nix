@@ -1,10 +1,10 @@
-{ lib, runCommandNoCC, ... }:
+{ lib, runCommand, ... }:
 
 let
   # Taken from https://docs.ubports.com/en/latest/userguide/install.html#missing-udev-rules
   rules = ./51-android.rules;
 in
-runCommandNoCC "ubports-udev-rules"
+runCommand "ubports-udev-rules"
 {
   meta = with lib; {
     description = "udev rules for the ubports installer to recognize android devices.";

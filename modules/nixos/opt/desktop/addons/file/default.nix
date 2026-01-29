@@ -50,7 +50,7 @@ in
         nnn
         yazi                    # like emacs dirvish
         ncdu                    # interactive du replacement
-        du-dust                 # `dust` - tree directories
+        dust                    # tree directories
         duf                     # du-like but with table
       ];
     })
@@ -126,7 +126,7 @@ in
           kdePackages.kio-extras
           kdePackages.kio-fuse
           # kio-s3
-        ] ++ optional cfg.withSambaBrowse pkgs.libsForQt5.kdenetwork-filesharing;
+        ] ++ optional cfg.withSambaBrowse pkgs.kdePackages.kdenetwork-filesharing;
     })
   ];
 }

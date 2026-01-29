@@ -19,6 +19,7 @@ in {
   networking.hostId = "1e4e3d80"; # Required for zfs
   networking.hostName = "krypton";
   boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.zfs.package = pkgs.zfs_2_4; # ZFS 2.4 supports kernel 6.18
   boot.zfs.requestEncryptionCredentials = true;
 
   boot.loader.systemd-boot.enable = true;

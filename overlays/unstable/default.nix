@@ -6,7 +6,7 @@ final: prev: {
     picom
     kubecolor
     gamescope
-    firefox-wayland
+    firefox
     wrapOBS obs-studio obs-studio-plugins
     freetube
     flyctl

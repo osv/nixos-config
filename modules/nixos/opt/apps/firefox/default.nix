@@ -201,7 +201,7 @@ let
     "extensions.formautofill.creditCards.enabled" = false;
     "extensions.formautofill.heuristics.enabled" = false;
   };
-  pkg-firefox = pkgs.firefox-wayland.override (
+  pkg-firefox = pkgs.firefox.override (
     # Using optionalAttrs here to allow for easier additions if something
     # like KDE should be used in the future.
     lib.optionalAttrs config.nerv.opt.desktop.gnome.enable {

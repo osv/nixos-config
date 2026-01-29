@@ -21,30 +21,30 @@ in {
 
     nerv.opt.persist.state.directories = [{
       directory = "/var/lib/dnscrypt-proxy";
-      user = "dnscrypt-proxy2";
-      group = "dnscrypt-proxy2";
+      user = "dnscrypt-proxy";
+      group = "dnscrypt-proxy";
     }];
 
-    systemd.services.dnscrypt-proxy2.serviceConfig = {
+    systemd.services.dnscrypt-proxy.serviceConfig = {
       DynamicUser = lib.mkForce false;
-      User = "dnscrypt-proxy2";
-      Group = "dnscrypt-proxy2";
+      User = "dnscrypt-proxy";
+      Group = "dnscrypt-proxy";
     };
 
-    users.users.dnscrypt-proxy2 = {
+    users.users.dnscrypt-proxy = {
       isSystemUser = true;
       createHome = false;
-      group = "dnscrypt-proxy2";
+      group = "dnscrypt-proxy";
       description = "DNSCrypt user";
     };
 
-    users.groups.dnscrypt-proxy2 = { };
+    users.groups.dnscrypt-proxy = { };
 
-    services.dnscrypt-proxy2 = {
+    services.dnscrypt-proxy = {
       enable = true;
 
       settings = {
-        # https://github.com/carjorvaz/nixos/blob/d09a4b06ca797ee0a31e0c5dcfdd8b4cccdfe94f/profiles/dns/dnscrypt-proxy2.nix#L12
+        # https://github.com/carjorvaz/nixos/blob/d09a4b06ca797ee0a31e0c5dcfdd8b4cccdfe94f/profiles/dns/dnscrypt-proxy.nix#L12
 
         # first (always pick the fastest server in the list)
         # p2 (randomly choose between the top 2 fastest servers)
