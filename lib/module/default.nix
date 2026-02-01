@@ -30,6 +30,76 @@ with lib; rec {
   # Usage: ${homeEcho "Claude" "Setting up statusline..."}
   homeEcho = tag: msg: ''echo -e "\033[1;34m[${tag}]\033[0m ${msg}"'';
 
+  # Create a test config script that symlinks repo files to home directory
+  # This allows testing configuration changes without running nixos-rebuild switch.
+  #
+  # The script automatically detects if sourcePath is a file or directory.
+  #
+  # Usage for directory source (most common):
+  #   mkTestConfigScript pkgs {
+  #     name = "my-test-emacs-config";
+  #     appName = "Emacs Doom";
+  #     sourcePath = "modules/nixos/opt/apps/emacs/config_doom";
+  #     targetPath = ".config/doom";
+  #     files = [ "init.el" "config.el" "packages.el" "themes" ];
+  #     reloadCmd = "SPC h r r";
+  #   }
+  #
+  # Usage for single file source (e.g., WezTerm):
+  #   mkTestConfigScript pkgs {
+  #     name = "my-test-wezterm-config";
+  #     appName = "WezTerm";
+  #     sourcePath = "modules/nixos/opt/desktop/addons/term/wezterm/config.lua";
+  #     targetPath = ".config/wezterm";
+  #     files = [ "wezterm.lua" ];
+  #   }
+  mkTestConfigScript = pkgs: { name, appName, sourcePath, targetPath, files, reloadCmd ? null }:
+    let
+      repoPath = "/home/osv/work/my/nixos-config";
+      reloadHint = optionalString (reloadCmd != null) ''
+
+        echo ""
+        echo "Reload ${appName} with: ${reloadCmd}"'';
+      filesList = concatMapStringsSep "" (f: ''
+        echo "  $HOME/${targetPath}/${f}"'') files;
+      filesSpaceSeparated = concatStringsSep " " files;
+    in pkgs.writeShellScriptBin name ''
+      # IMPORTANT: Keep this list in sync with actual config files!
+      REPO="${repoPath}"
+      SOURCE="$REPO/${sourcePath}"
+      TARGET="$HOME/${targetPath}"
+
+      echo "Setting up ${appName} config symlinks..."
+
+      # Check if source exists
+      if [ ! -e "$SOURCE" ]; then
+        echo "Error: Source not found: $SOURCE"
+        exit 1
+      fi
+
+      # Remove old symlinks
+      echo "Removing old symlinks..."
+      rm -rf "$TARGET"
+      mkdir -p "$TARGET"
+
+      # Create symlinks - auto-detect if source is file or directory
+      echo "Creating symlinks..."
+      if [ -f "$SOURCE" ]; then
+        # Source is a single file - link it to each target filename
+        for file in ${filesSpaceSeparated}; do
+          ln -sv "$SOURCE" "$TARGET/$file"
+        done
+      else
+        # Source is a directory - link each file from it
+        for file in ${filesSpaceSeparated}; do
+          ln -sv "$SOURCE/$file" "$TARGET/$file"
+        done
+      fi
+
+      echo "Done! Symlinks created:"
+      ${filesList}${reloadHint}
+    '';
+
   # Simplify creation of multiple standard modules in a single file
   # Usage: stdModules args [ [path description packages persistConfig extraConfig] ... ]
   # Example:

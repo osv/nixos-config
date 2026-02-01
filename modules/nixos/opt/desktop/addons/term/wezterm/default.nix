@@ -26,8 +26,20 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [ pkgs.wezterm ];
-    
+    environment.systemPackages = with pkgs; [
+      wezterm
+
+      ## Test config script
+      (mkTestConfigScript pkgs {
+        name = "my-test-wezterm-config";
+        appName = "WezTerm";
+        sourcePath = "modules/nixos/opt/desktop/addons/term/wezterm/config.lua";
+        targetPath = ".config/wezterm";
+        files = [ "wezterm.lua" ];
+        reloadCmd = "Restart WezTerm";
+      })
+    ];
+
     # Write WezTerm configuration and theme files
     nerv.home.configFile = {
       "wezterm/wezterm.lua".source = ./config.lua;

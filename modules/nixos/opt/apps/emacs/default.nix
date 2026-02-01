@@ -240,6 +240,16 @@ in
         gnutls # doom! for TLS connectivity
         sqlite # lookup
         wordnet # lookup
+
+        ## Test config script
+        (mkTestConfigScript pkgs {
+          name = "my-test-emacs-config";
+          appName = "Emacs Doom";
+          sourcePath = "modules/nixos/opt/apps/emacs/config_doom";
+          targetPath = ".config/doom";
+          files = [ "init.el" "config.el" "packages.el" "themes" ];
+          reloadCmd = "SPC h r r";
+        })
       ]
       ++ optionals (cfg.env.export) [
         go-grip # :lang (markdown +grip) - GitHub-flavored preview

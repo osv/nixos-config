@@ -418,6 +418,74 @@ nerv.home.activation.bar = ''
 '';
 ```
 
+### Config Testing Scripts
+
+**When to use:**
+When working with applications that have configuration files managed by Nix (via `configFile` or `home.file`), and you need to test configuration changes quickly without running `nixos-rebuild switch`.
+
+**Common use cases:**
+- Emacs/Doom config changes
+- XMonad configuration tweaks
+- WezTerm terminal settings
+- Any app where you edit config files in the repo
+
+**Available helper:** `lib.nerv.mkTestConfigScript`
+
+**Function signature:**
+```nix
+mkTestConfigScript = pkgs: {
+  name              # Script name (will be in PATH as this name)
+  appName           # Human-readable app name (for messages)
+  sourcePath        # Path to source, relative to repo root
+  targetPath        # Path to target, relative to $HOME
+  files             # List of files/dirs to symlink
+  reloadCmd ? null  # Optional: reload command hint
+}
+```
+
+The script automatically detects if `sourcePath` is a file or directory.
+
+**Usage example in a module:**
+```nix
+{ config, lib, pkgs, ... }:
+with lib;
+with lib.nerv;
+
+let cfg = config.nerv.opt.apps.emacs;
+in {
+  config = mkIf cfg.enable {
+    environment.systemPackages = with pkgs; [
+      myEmacsPkg
+
+      ## Test config script
+      (mkTestConfigScript pkgs {
+        name = "my-test-emacs-config";
+        appName = "Emacs Doom";
+        sourcePath = "modules/nixos/opt/apps/emacs/config_doom";
+        targetPath = ".config/doom";
+        files = [ "init.el" "config.el" "packages.el" "themes" ];
+        reloadCmd = "SPC h r r"; # Instruction how to reload
+      })
+    ];
+  };
+}
+```
+
+**Generated script behavior:**
+1. Validates source path exists
+2. Removes old symlinks/files from target
+3. Creates fresh symlinks for all listed files
+4. Prints verbose output showing what was done
+5. Shows reload command hint if provided
+
+**IMPORTANT:** When adding new config files to a module, you MUST update the `files` list in the `mkTestConfigScript` call!
+
+**When to suggest this to user:**
+- User wants to test config changes iteratively
+- User is editing Emacs/XMonad/WezTerm config files
+- User mentions slow rebuilds for config testing
+- User asks about faster development workflow for configs
+
 ## Development Workflow
 
 1. Make changes to relevant module files.

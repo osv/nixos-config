@@ -74,6 +74,16 @@ in
       scrot
       ksnip # screenshotter, when I need to draw arrow
       flameshot # another screenshotter
+
+      ## Test config script
+      (mkTestConfigScript pkgs {
+        name = "my-test-xmonad-config";
+        appName = "XMonad";
+        sourcePath = "modules/nixos/opt/desktop/xmonad/.xmonad";
+        targetPath = ".xmonad";
+        files = [ "xmonad.hs" "bin" "lib" ];
+        reloadCmd = "xmonad --recompile && Mod+q";
+      })
     ];
   };
 }
