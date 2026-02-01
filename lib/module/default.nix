@@ -61,8 +61,13 @@ with lib; rec {
         echo ""
         echo "Reload ${appName} with: ${reloadCmd}"'';
       filesList = concatMapStringsSep "" (f: ''
-        echo "  $HOME/${targetPath}/${f}"'') files;
+        echo "  $HOME/${targetPath}/${f}"
+      '') files;
       filesSpaceSeparated = concatStringsSep " " files;
+      # Generate rm commands for each file to avoid deleting unrelated files
+      rmCommands = concatMapStringsSep "" (f: ''
+        rm -rf "$TARGET/${f}"
+      '') files;
     in pkgs.writeShellScriptBin name ''
       # IMPORTANT: Keep this list in sync with actual config files!
       REPO="${repoPath}"
@@ -77,10 +82,12 @@ with lib; rec {
         exit 1
       fi
 
-      # Remove old symlinks
-      echo "Removing old symlinks..."
-      rm -rf "$TARGET"
+      # Create target directory if needed
       mkdir -p "$TARGET"
+
+      # Remove only the files we're going to replace (preserve other files like themes)
+      echo "Removing old symlinks..."
+      ${rmCommands}
 
       # Create symlinks - auto-detect if source is file or directory
       echo "Creating symlinks..."
