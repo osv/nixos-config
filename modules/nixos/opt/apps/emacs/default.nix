@@ -236,8 +236,10 @@ in
 
         ## Doom dependencies
         git
-        ripgrep
+        ripgrep # lookup
         gnutls # doom! for TLS connectivity
+        sqlite # lookup
+        wordnet # lookup
       ]
       ++ optionals (cfg.env.export) [
         go-grip # :lang (markdown +grip) - GitHub-flavored preview
