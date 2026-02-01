@@ -40,6 +40,7 @@ in {
   config = {
     environment.systemPackages = with pkgs; [
       bat # colorized cat
+      htop
       grc # colorize output of some commands, e.g "grc mount", need to source grc.zsh later
       cowsay
       fortune
