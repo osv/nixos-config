@@ -79,14 +79,6 @@ stdModules { inherit config lib pkgs; } [
   ]
 
   [
-    "nerv.opt.cli-apps.proton"
-    "Proton caller utility"
-    (with pkgs; [ proton-caller ])
-    {}
-    {}
-  ]
-
-  [
     "nerv.opt.cli-apps.wshowkeys"
     "Wayland keyboard input display utility"
     (with pkgs; [ wshowkeys ])

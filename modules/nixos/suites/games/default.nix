@@ -27,7 +27,6 @@ in
       };
       opt.cli-apps = {
         wine = on;
-        proton = on;
       };
       opt.tools = {
         nix-ld = on;
