@@ -6,6 +6,7 @@ let
   cfg = config.nerv.opt.apps.ai;
   claude-but-logo = ./claude.png;
   chii-logo = ./chii.png;
+  zai-logo = ./zai-claude.png;
   chii-style = ./chii-style.md;
 
   # Reusable function to display logo based on terminal type
@@ -47,6 +48,18 @@ let
     # export TERM=xterm
   '';
 
+  # Environment setup for z.ai API
+  zaiEnvSetup = ''
+    # z.ai API configuration
+    export ANTHROPIC_DEFAULT_OPUS_MODEL=GLM-4.7
+    export ANTHROPIC_DEFAULT_SONNET_MODEL=GLM-4.7
+    export ANTHROPIC_DEFAULT_HAIKU_MODEL=GLM-4.5-Air
+    ANTHROPIC_AUTH_TOKEN="$(pass show z.ai-crush-key)"
+    export ANTHROPIC_AUTH_TOKEN
+    export ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
+    export API_TIMEOUT_MS=3000000
+  '';
+
   my-claude = pkgs.writeShellScriptBin "my-claude" ''
     #!/usr/bin/env bash
 
@@ -78,6 +91,20 @@ let
 Пользователь спрашивает:
 $*" | ${pkgs.glow}/bin/glow
   '';
+
+  my-claude-zai = pkgs.writeShellScriptBin "my-claude-zai" ''
+    #!/usr/bin/env bash
+
+    ${displayLogo zai-logo}
+    echo $'\033[1;33;41m                      Внимание!                      \033[0m'
+    echo $'\033[1;97;41m  Z.AI собирать твой ценный данные славить компартия \033[0m'
+    echo $'\033[1;97;41m                                                     \033[0m'
+    ${claudeEnvSetup}
+    ${zaiEnvSetup}
+
+    # Execute claude command with all arguments
+    PATH="/run/current-system/sw/bin:$PATH" exec claude "$@"
+  '';
 in {
   options.nerv.opt.apps.ai = with types; {
     enable = mkBoolOpt false "Whether or not to enable AI tools.";
@@ -104,7 +131,7 @@ in {
       nerv.opt.persist.state.homeDirectories = [ ".cursor" ".config/Cursor" ];
     })
     (mkIf (cfg.enable && cfg.claude.enable) {
-      environment.systemPackages = [ my-claude ask-chii ];
+      environment.systemPackages = [ my-claude ask-chii my-claude-zai ];
 
       nerv.opt.persist.state.homeFiles = [ ".claude.json" ];
       nerv.opt.persist.state.homeDirectories = [
