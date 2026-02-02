@@ -48,6 +48,7 @@ module My.KeybindingTypes
   ) where
 
 import XMonad
+import Data.List (groupBy)
 
 -- | Export format for categories
 data KeybindingCategory = KeybindingCategory
@@ -100,6 +101,7 @@ bind = KeybindingDef
 -- * "M-C-r" → [Super, Ctrl, KeyChar 'r']
 -- * "M-S-<Left>" → [Super, Shift, SpecialKey "Left"]
 -- * "M-s t" → [Super, KeyChar 's', KeyChar 't'] (chord binding)
+-- * "M--" → [Super, KeyChar '-']  (double hyphen means literal hyphen)
 parseKeyNames :: String -> [KeyName]
 parseKeyNames combo =
   case words combo of
@@ -107,11 +109,27 @@ parseKeyNames combo =
       -- Check if modPart is a chord trigger (e.g., "M-s", "M-e", "M-u")
       case parseModPart modPart of
         Just mods -> mods ++ [parseSingleKey finalKey]
-        Nothing -> map parseKeyPart (splitOn "-" combo)
+        Nothing -> parseCombo combo
     _ ->
-      -- Regular binding: split by "-"
-      map parseKeyPart (splitOn "-" combo)
+      -- Regular binding
+      parseCombo combo
   where
+    -- Parse combo, treating "--" as a single hyphen key
+    parseCombo str = map parseKeyPart (splitDash str)
+
+    -- Split by dash, where "--" is treated as a single token
+    -- Single dashes are separators (discarded)
+    -- "M-C-r" → ["M", "C", "r"]
+    -- "M--" → ["M", "--"]
+    splitDash str = filter (not . isSeparator) (processGroups (groupBy (\a b -> a == '-' && b == '-') str))
+      where
+        processGroups groups = map extractToken groups
+        extractToken g
+          | length g >= 2 && head g == '-' = "--"  -- Double hyphen = literal minus key
+          | length g == 1 && head g == '-' = "-"    -- Single dash = separator (will be filtered)
+          | otherwise = [head g]                     -- Other characters
+        isSeparator s = s == "-"
+
     -- Parse modifier part like "M-s" into [Super] + chord key
     parseModPart str =
       case splitOn "-" str of
@@ -130,6 +148,7 @@ parseKeyNames combo =
     parseKeyPart "C" = Ctrl
     parseKeyPart "S" = Shift
     parseKeyPart "M1" = Alt
+    parseKeyPart "--" = KeyChar '-'  -- Double hyphen means literal hyphen key
     parseKeyPart ('<':xs) | not (null xs) = SpecialKey (init xs)  -- Handle <Left>, <Return>, <F1>, etc.
     parseKeyPart [c] = KeyChar c
     parseKeyPart other = SpecialKey other
@@ -157,13 +176,26 @@ renderKeyName (KeyChar c) = [c]
 renderKeyName (SpecialKey k) = k
 
 -- | Split string by delimiter
+-- Handles repeated delimiters correctly
 splitOn :: String -> String -> [String]
-splitOn delim str
-  | null str = []
-  | otherwise =
-      case findIndex (isPrefixOf delim) (tails str) of
-        Nothing -> [str]
-        Just idx -> take idx str : splitOn delim (drop (idx + length delim) str)
+splitOn _ "" = []
+splitOn delim str =
+  case breakOn delim str of
+    (before, rest) ->
+      if null rest
+        then [before]
+        else before : splitOn delim (drop (length delim) rest)
+
+-- | Break string at first occurrence of delimiter
+-- Returns (before, including_delimiter_and_after)
+breakOn :: String -> String -> (String, String)
+breakOn delim str
+  | delim `isPrefixOf` str = ([], str)
+  | otherwise = case str of
+      [] -> ([], [])
+      (c:cs) ->
+        let (before, after) = breakOn delim cs
+        in (c:before, after)
 
 -- | Find index of first element satisfying predicate
 findIndex :: (a -> Bool) -> [a] -> Maybe Int
