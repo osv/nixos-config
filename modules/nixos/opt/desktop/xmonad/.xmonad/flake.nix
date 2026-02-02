@@ -1,19 +1,15 @@
 {
-  description = "XMonad Config";
+  description = "XMonad Config - uses nixpkgs from parent flake";
+
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    taffybar-flake = {
-      url = "github:sherubthakur/taffybar";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    flake-utils = {
-      url = "github:numtide/flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
+    parent.url = "path:/home/osv/work/my/nixos-config";
   };
-  outputs = inputs@{ self, nixpkgs, flake-utils, taffybar-flake, ... }:
+
+  outputs = inputs@{ self, parent, ... }:
     let
+      system = "x86_64-linux";
+      pkgs = parent.inputs.nixpkgs.legacyPackages.${system};
+
       haskellDeps = ps:
         with ps; [
           xmonad
@@ -24,14 +20,18 @@
           hoogle
           haskell-language-server
         ];
-    in flake-utils.lib.simpleFlake {
-      inherit self nixpkgs;
-      inherit (taffybar-flake) overlay;
-      name = "XMonad Dev environment";
-      shell = { pkgs ? import <nixpkgs> }:
-        pkgs.mkShell {
-          buildInputs = with pkgs; [ (ghc.withPackages haskellDeps) ];
-        };
+    in {
+      devShells.${system}.default = pkgs.mkShell {
+        buildInputs = with pkgs; [
+          (ghc.withPackages haskellDeps)
+        ];
+
+        shellHook = ''
+          echo "XMonad development environment"
+          echo "GHC: ${pkgs.ghc.version}"
+          echo "Nixpkgs: ${parent.inputs.nixpkgs.shortRev or "unknown"}"
+          echo "Available: xmonad, ormolu, cabal-fmt, hoogle, hls"
+        '';
+      };
     };
 }
-

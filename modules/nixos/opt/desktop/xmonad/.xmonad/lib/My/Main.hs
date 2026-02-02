@@ -20,6 +20,7 @@ import XMonad.Util.SpawnOnce
 import Colors.DoomOne
 import My.Layout
 import My.Keybindings
+import My.KeybindingsExport
 import My.ScratchPads
 import My.Theme
 import My.Xprop
@@ -30,6 +31,7 @@ import XMonad.Hooks.PrettyStatusBar (PSBConfig(psbOutput, psbIcons))
 
 myStartupHook :: X ()
 myStartupHook = do
+  exportKeybindings  -- Export keybindings to HTML visualization
   spawnOnce "my-set-wallpaper"
   spawnOnce "sleep 1 && polybar -c ~/.config/xmonad-polybar/temp-polybar.ini &"
   spawnOnce "xsetroot -cursor_name left_ptr" -- I don't like default "X" cursor over desktop

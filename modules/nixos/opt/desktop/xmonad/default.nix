@@ -39,6 +39,9 @@ in
           ".xmonad/xmonad.hs" = {
             source = ./.xmonad/xmonad.hs;
           };
+          ".xmonad/hotkey-template.html" = {
+            source = ./.xmonad/hotkey-template.html;
+          };
         };
       };
     };
@@ -81,7 +84,7 @@ in
         appName = "XMonad";
         sourcePath = "modules/nixos/opt/desktop/xmonad/.xmonad";
         targetPath = ".xmonad";
-        files = [ "xmonad.hs" "bin" "lib" ];
+        files = [ "xmonad.hs" "bin" "lib" "hotkey-template.html"];
         reloadCmd = "xmonad --recompile && Mod+q";
       })
     ];
