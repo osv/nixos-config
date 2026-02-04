@@ -975,3 +975,10 @@ npm i -g sql-formatter-cli"
     (face-spec-set 'demap-current-line-inactive-face
                    `((t :background ,gray1
                       :inherit    unspecified)))))
+
+;; Keybindings Export - export Emacs keybindings to JavaScript for HTML visualization
+(load! "keybindings-export")
+
+(map! :leader
+      :desc "Export keybindings to HTML"
+      "h E" #'keybindings-export-to-js)
