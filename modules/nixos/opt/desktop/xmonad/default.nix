@@ -2,7 +2,17 @@
 
 with lib;
 with lib.nerv;
-let cfg = config.nerv.opt.desktop.xmonad;
+let
+  cfg = config.nerv.opt.desktop.xmonad;
+  userName = config.nerv.opt.user.name;
+  homeDir = "/home/${userName}";
+  xmonadDir = "${homeDir}/.xmonad";
+
+  # Source paths in nix store
+  srcBin = ./.xmonad/bin;
+  srcLib = ./.xmonad/lib;
+  srcXmonadHs = ./.xmonad/xmonad.hs;
+  srcTemplate = ./.xmonad/hotkey-template.html;
 in
 {
   options.nerv.opt.desktop.xmonad = with types; {
@@ -30,19 +40,34 @@ in
         };
       };
 
+      # Persist whole .xmonad directory (binary + build artifacts)
+      # Config files are copied via activation script with rsync --checksum
+      # so mtime only updates when content changes → no unnecessary recompilation
       opt.persist.derivative.homeDirectories = [ ".xmonad" ];
+    };
 
-      home = {
-        file = {
-          ".xmonad/bin" = { source = ./.xmonad/bin; recursive = true; };
-          ".xmonad/lib" = { source = ./.xmonad/lib; recursive = true; };
-          ".xmonad/xmonad.hs" = {
-            source = ./.xmonad/xmonad.hs;
-          };
-          ".xmonad/hotkey-template.html" = {
-            source = ./.xmonad/hotkey-template.html;
-          };
-        };
+    # Copy xmonad config files using rsync --checksum
+    # Only updates files if content changed, preserving mtime otherwise
+    # This allows XMonad to skip recompilation when config hasn't changed
+    # Uses systemd service to run AFTER impermanence mounts .xmonad directory
+    systemd.services.xmonad-config-sync = {
+      description = "Sync XMonad config files";
+      wantedBy = [ "multi-user.target" ];
+      # Run after the .xmonad bind mount from impermanence
+      after = [ "home-${userName}-.xmonad.mount" ];
+      requires = [ "home-${userName}-.xmonad.mount" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = pkgs.writeShellScript "xmonad-config-sync" ''
+          echo "[xmonad] Syncing XMonad config..."
+          mkdir -p ${xmonadDir}/bin ${xmonadDir}/lib
+          ${pkgs.rsync}/bin/rsync -r --checksum --delete ${srcBin}/ ${xmonadDir}/bin/
+          ${pkgs.rsync}/bin/rsync -r --checksum --delete ${srcLib}/ ${xmonadDir}/lib/
+          ${pkgs.rsync}/bin/rsync --checksum ${srcXmonadHs} ${xmonadDir}/xmonad.hs
+          ${pkgs.rsync}/bin/rsync --checksum ${srcTemplate} ${xmonadDir}/hotkey-template.html
+          chown -R ${userName}:users ${xmonadDir}
+        '';
       };
     };
 
