@@ -64,7 +64,7 @@ myKeybindingCategories =
       , bind "M-S-q"       "Quit XMonad"                             $ sequence_ [spawn (mySoundPlayer ++ shutdownSound), io exitSuccess]
       , bind "M-S-x"       "Kill focused window"                       kill1
       , bind "M-C-x"       "Kill all windows on WS"                    killAll
-      , bind "M-S-<F1>"    "Show Help"                               $ spawn "xdg-open ~/.xmonad/hotkey/index.html"
+      , bind "M-S-<F1>"    "Show Help"                               $ spawn "xdg-open ~/.cache/nixos-config/keybinding/index.html"
       , bind "M-p"         "Run prompt"                              $ spawn myLauncher
       ]
 

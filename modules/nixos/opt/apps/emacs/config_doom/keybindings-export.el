@@ -18,7 +18,7 @@
   :group 'tools)
 
 (defcustom keybindings-export-output-dir
-  (expand-file-name "~/.config/emacs/.local/cache/my-keybindings/")
+  (expand-file-name "~/.cache/nixos-config/keybinding/emacs/")
   "Directory for exported keybindings files."
   :type 'directory
   :group 'keybindings-export)
@@ -269,9 +269,10 @@ Order matters: escape backslash FIRST, then other characters."
             (keybindings-export--generate-keybindings-js bindings))))
 
 ;;;###autoload
-(defun keybindings-export-to-js ()
+(defun keybindings-export-to-js (&optional silent)
   "Export keybindings to JavaScript and generate HTML.
-Writes to `keybindings-export-output-dir'."
+Writes to `keybindings-export-output-dir'.
+If SILENT is non-nil, don't prompt to open browser."
   (interactive)
   (let* ((output-dir keybindings-export-output-dir)
          (js-file (expand-file-name "keybindings-data.js" output-dir))
@@ -300,9 +301,13 @@ Writes to `keybindings-export-output-dir'."
       (message "Warning: Template file not found: %s" template-file)
       (message "Only JS data file was created: %s" js-file))
 
+    ;; Regenerate main keybindings index page
+    (call-process "my-generate-keybindings-index" nil nil nil)
+
     (message "Keybindings exported to: %s" output-dir)
-    (when (y-or-n-p "Open in browser? ")
-      (browse-url (concat "file://" html-file)))))
+    (unless silent
+      (when (y-or-n-p "Open in browser? ")
+        (browse-url (concat "file://" html-file))))))
 
 ;;;###autoload
 (defun keybindings-export-preview ()

@@ -946,7 +946,7 @@ npm i -g sql-formatter-cli"
 
 (use-package show-font
   :ensure t
-  :commands (show-font-select-preview show-font-list)
+  :commands (show-font-select-preview show-font-list))
 
 (use-package! sticky-scroll-mode)
 
@@ -982,3 +982,12 @@ npm i -g sql-formatter-cli"
 (map! :leader
       :desc "Export keybindings to HTML"
       "h E" #'keybindings-export-to-js)
+
+;; Open keybindings documentation index
+(defun my/open-keybindings-index ()
+  "Export Emacs keybindings, regenerate index, and open in browser."
+  (interactive)
+  (keybindings-export-to-js t)  ; t = silent mode
+  (browse-url (concat "file://" (expand-file-name "~/.cache/nixos-config/keybinding/index.html"))))
+
+(global-set-key (kbd "M-S-<f1>") #'my/open-keybindings-index)

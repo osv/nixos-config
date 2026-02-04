@@ -13,7 +13,8 @@
 -- 3. It extracts categories and keybindings from 'allKeysStructured'
 -- 4. Colors are assigned to categories by cycling through the Doom One palette
 -- 5. Inline JavaScript is generated with categories and keybindings data
--- 6. The HTML is written to @~/.xmonad/hotkey/index.html@
+-- 6. The HTML is written to @~/.cache/nixos-config/keybinding/xmonad/index.html@
+-- 7. The main index page is regenerated via 'my-generate-keybindings-index'
 --
 -- == Zero Parsing Approach
 --
@@ -45,6 +46,7 @@ import My.Keybindings (allKeysStructured)
 import My.KeybindingTypes (KeyName(..), KeybindingCategory(..), Keybinding(..), findCategoryById, renderKeyName)
 import System.Directory (createDirectoryIfMissing, getHomeDirectory, doesFileExist, copyFile)
 import System.FilePath ((</>))
+import System.Process (callCommand)
 import Data.List (intercalate)
 
 -- | Export keybindings to HTML file
@@ -71,12 +73,15 @@ exportKeybindings = do
   -- Write output file
   io $ writeHTMLFile finalHTML
 
+  -- Regenerate main index page
+  io $ regenerateMainIndex
+
 -- | Ensure output directories exist
 ensureOutputDirs :: IO ()
 ensureOutputDirs = do
   home <- getHomeDirectory
   let dataDir = home </> ".xmonad" </> "data"
-  let hotkeyDir = home </> ".xmonad" </> "hotkey"
+  let hotkeyDir = home </> ".cache" </> "nixos-config" </> "keybinding" </> "xmonad"
   createDirectoryIfMissing True dataDir
   createDirectoryIfMissing True hotkeyDir
 
@@ -103,8 +108,12 @@ readTemplate = do
 writeHTMLFile :: String -> IO ()
 writeHTMLFile content = do
   home <- getHomeDirectory
-  let outputPath = home </> ".xmonad" </> "hotkey" </> "index.html"
+  let outputPath = home </> ".cache" </> "nixos-config" </> "keybinding" </> "xmonad" </> "index.html"
   writeFile outputPath content
+
+-- | Regenerate the main keybindings index page
+regenerateMainIndex :: IO ()
+regenerateMainIndex = callCommand "my-generate-keybindings-index"
 
 -- | Doom One theme colors for category assignment
 --

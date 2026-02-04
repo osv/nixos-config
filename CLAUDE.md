@@ -493,12 +493,12 @@ in {
    **CRITICAL**: Always describe what this module is used for. For example: "dolphin (KDE file manager)" or "xkb (keyboard layout configuration)"".
    **CRITICAL:** Always update `modules/nixos/opt/user/README.zsh.md` after adding new packages to Zsh or changing keybindings. Keep this file up to date.
 2. **CRITICAL**: you must `git add` created files. Files must be in git, otherwise nix flake cannot build.
-2. Test build: `nixos-rebuild build --flake .#xenon`
+2. Test build: `nixos-rebuild build --flake .#<hostname>` (replace `<hostname>` with actual hostname, e.g. `krypton`, `xenon`)
 3. Apply changes only if user request:
-   - switch ``nixos-rebuild switch --flake .#xenon`
+   - switch `nixos-rebuild switch --flake .#<hostname>`
    - Check generation diff: `my-nixos-diff`
 
-where `xenon` - is hostname example. Current hostname: !`hostname`
+**Note**: Use `hostname` command to get current hostname. Always use actual hostname in flake commands.
 
 ### Commit Message Convention
 
@@ -529,6 +529,26 @@ or simply:
 - `firefox: Enable Firefox and migrate search engine favicons to local storage`
 - `Add yazi file manager and update Chii style emoji options`
 - `Fix Krypton disco`
+
+### Keybindings Documentation
+
+Keybindings documentation is generated to `~/.cache/nixos-config/keybinding/`.
+
+**Structure:**
+- `~/.cache/nixos-config/keybinding/<app-name>/index.html` — app keybindings
+- `~/.cache/nixos-config/keybinding/index.html` — main page with list of all apps
+
+**Adding keybindings for a new application:**
+1. Generate HTML to `~/.cache/nixos-config/keybinding/<app-name>/index.html`
+2. After generation, call `my-generate-keybindings-index` to update the main index page
+3. HTML should be self-contained (styles embedded), Doom One theme is recommended
+
+**Updating docs in repository:**
+- `make update-doc` — copies from cache to `docs/keybinding/`
+
+**Existing implementations (examples):**
+- XMonad: `modules/nixos/opt/desktop/xmonad/.xmonad/lib/My/KeybindingsExport.hs`
+- Emacs: `modules/nixos/opt/apps/emacs/config_doom/keybindings-export.el`
 
 ## Notes
 

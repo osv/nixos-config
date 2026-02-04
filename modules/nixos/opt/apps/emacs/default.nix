@@ -241,6 +241,9 @@ in
         sqlite # lookup
         wordnet # lookup
 
+        ## Keybindings documentation
+        pkgs.nerv.my-generate-keybindings-index
+
         ## Test config script
         (mkTestConfigScript pkgs {
           name = "my-test-emacs-config";
