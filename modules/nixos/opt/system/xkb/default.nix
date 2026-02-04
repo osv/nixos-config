@@ -13,10 +13,11 @@ in
   config = mkIf cfg.enable {
     console.useXkbConfig = true;
     services.xserver = {
+      enableCtrlAltBackspace = true;
       xkb = {
         layout = "us,ru,ua";
         variant = "";
-        options = "grp:rctrl_toggle, altwin:swap_alt_win";
+        options = "grp:rctrl_toggle, altwin:swap_alt_win, terminate:ctrl_alt_bksp";
       };
       autoRepeatDelay = 220; #  time of key must be depressed before autorepeat starts
       autoRepeatInterval = 25;

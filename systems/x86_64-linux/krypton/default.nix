@@ -103,6 +103,7 @@ in {
   console = {
     font = "cyr-sun16";
     keyMap = "us";
+    earlySetup = true; # Инициализирует консоль до запуска X
     colors = [
       # Normal
       "292d3e" # Black
@@ -136,6 +137,12 @@ in {
   services.xserver = {
     windowManager.fluxbox.enable = true;
     desktopManager.xterm.enable = true;
+  };
+
+  # Гарантировать доступ к TTY при зависании X
+  services.logind.settings.Login = {
+    NAutoVTs = 6;   # Автоматически запускать getty на 6 VT
+    ReserveVT = 6;  # Резервировать VT 6 для getty всегда
   };
 
   fonts.fontconfig = {
