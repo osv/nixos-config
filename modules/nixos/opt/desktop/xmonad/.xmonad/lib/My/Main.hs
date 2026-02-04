@@ -31,11 +31,11 @@ import XMonad.Hooks.PrettyStatusBar (PSBConfig(psbOutput, psbIcons))
 
 myStartupHook :: X ()
 myStartupHook = do
-  exportKeybindings  -- Export keybindings to HTML visualization
   spawnOnce "my-set-wallpaper"
-  spawnOnce "sleep 1 && polybar -c ~/.config/xmonad-polybar/temp-polybar.ini &"
+  spawn "killall polybar 2>/dev/null; sleep 1 && polybar -c ~/.config/xmonad-polybar/temp-polybar.ini &"
   spawnOnce "xsetroot -cursor_name left_ptr" -- I don't like default "X" cursor over desktop
   setWMName "LG3D"
+  exportKeybindings  -- Export keybindings to HTML visualization
 
 myLayoutIcons :: M.Map String String
 myLayoutIcons =
