@@ -193,6 +193,8 @@ in
           # Don't kill when target restarts
           KillMode = "mixed";
           KillSignal = "USR2";  # Emacs handles this gracefully
+          # Fast shutdown - don't wait 90s default timeout
+          TimeoutStopSec = 10;
         };
       };
 
