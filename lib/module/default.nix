@@ -35,13 +35,21 @@ with lib; rec {
   #
   # The script automatically detects if sourcePath is a file or directory.
   #
+  # files list supports two formats:
+  #   - String: "file.el" → source: $REPO/$sourcePath/file.el, target: $HOME/$targetPath/file.el
+  #   - Attrset: { source = "lib/template.html"; target = "data/template.html"; }
+  #     → source relative to repo root, target relative to targetPath
+  #
   # Usage for directory source (most common):
   #   mkTestConfigScript pkgs {
   #     name = "my-test-emacs-config";
   #     appName = "Emacs Doom";
   #     sourcePath = "modules/nixos/opt/apps/emacs/config_doom";
   #     targetPath = ".config/doom";
-  #     files = [ "init.el" "config.el" "packages.el" "themes" ];
+  #     files = [
+  #       "init.el" "config.el" "packages.el" "themes"
+  #       { source = "lib/keybinding-template.html"; target = "keybinding-template.html"; }
+  #     ];
   #     reloadCmd = "SPC h r r";
   #   }
   #
@@ -56,18 +64,41 @@ with lib; rec {
   mkTestConfigScript = pkgs: { name, appName, sourcePath, targetPath, files, reloadCmd ? null }:
     let
       repoPath = "/home/osv/work/my/nixos-config";
+
+      # Split files into simple (strings) and custom (attrsets)
+      simpleFiles = filter isString files;
+      customFiles = filter isAttrs files;
+
       reloadHint = optionalString (reloadCmd != null) ''
 
         echo ""
         echo "Reload ${appName} with: ${reloadCmd}"'';
+
+      # File listing for output
       filesList = concatMapStringsSep "" (f: ''
         echo "  $HOME/${targetPath}/${f}"
-      '') files;
-      filesSpaceSeparated = concatStringsSep " " files;
-      # Generate rm commands for each file to avoid deleting unrelated files
-      rmCommands = concatMapStringsSep "" (f: ''
+      '') simpleFiles
+      + concatMapStringsSep "" (f: ''
+        echo "  $HOME/${targetPath}/${f.target}"
+      '') customFiles;
+
+      simpleSpaced = concatStringsSep " " simpleFiles;
+
+      # rm commands for simple files
+      rmSimple = concatMapStringsSep "" (f: ''
         rm -rf "$TARGET/${f}"
-      '') files;
+      '') simpleFiles;
+
+      # rm commands for custom files
+      rmCustom = concatMapStringsSep "" (f: ''
+        rm -rf "$TARGET/${f.target}"
+      '') customFiles;
+
+      # ln commands for custom files (source relative to repo root)
+      lnCustom = concatMapStringsSep "" (f: ''
+        mkdir -p "$(dirname "$TARGET/${f.target}")"
+        ln -sv "$REPO/${f.source}" "$TARGET/${f.target}"
+      '') customFiles;
     in pkgs.writeShellScriptBin name ''
       # IMPORTANT: Keep this list in sync with actual config files!
       REPO="${repoPath}"
@@ -86,22 +117,27 @@ with lib; rec {
       mkdir -p "$TARGET"
 
       # Remove only the files we're going to replace (preserve other files like themes)
+      # Fix read-only permissions (rsync from Nix store creates read-only dirs)
       echo "Removing old symlinks..."
-      ${rmCommands}
+      chmod -R u+w "$TARGET" 2>/dev/null || true
+      ${rmSimple}${rmCustom}
 
       # Create symlinks - auto-detect if source is file or directory
       echo "Creating symlinks..."
       if [ -f "$SOURCE" ]; then
         # Source is a single file - link it to each target filename
-        for file in ${filesSpaceSeparated}; do
+        for file in ${simpleSpaced}; do
           ln -sv "$SOURCE" "$TARGET/$file"
         done
       else
         # Source is a directory - link each file from it
-        for file in ${filesSpaceSeparated}; do
+        for file in ${simpleSpaced}; do
           ln -sv "$SOURCE/$file" "$TARGET/$file"
         done
       fi
+
+      # Custom files (source relative to repo root)
+      ${lnCustom}
 
       echo "Done! Symlinks created:"
       ${filesList}${reloadHint}

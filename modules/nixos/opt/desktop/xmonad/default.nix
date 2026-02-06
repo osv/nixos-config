@@ -12,7 +12,7 @@ let
   srcBin = ./.xmonad/bin;
   srcLib = ./.xmonad/lib;
   srcXmonadHs = ./.xmonad/xmonad.hs;
-  srcTemplate = ./.xmonad/hotkey-template.html;
+  srcTemplate = ../../../../../lib/keybinding-template.html;
 in
 {
   options.nerv.opt.desktop.xmonad = with types; {
@@ -62,10 +62,14 @@ in
         ExecStart = pkgs.writeShellScript "xmonad-config-sync" ''
           echo "[xmonad] Syncing XMonad config..."
           mkdir -p ${xmonadDir}/bin ${xmonadDir}/lib
-          ${pkgs.rsync}/bin/rsync -r --checksum --delete ${srcBin}/ ${xmonadDir}/bin/
-          ${pkgs.rsync}/bin/rsync -r --checksum --delete ${srcLib}/ ${xmonadDir}/lib/
-          ${pkgs.rsync}/bin/rsync --checksum ${srcXmonadHs} ${xmonadDir}/xmonad.hs
-          ${pkgs.rsync}/bin/rsync --checksum ${srcTemplate} ${xmonadDir}/hotkey-template.html
+          # Fix read-only permissions from Nix store before rsync (chmod doesn't affect mtime)
+          chmod -R u+w ${xmonadDir} 2>/dev/null || true
+          # --chmod=u+rw: Nix store files are read-only, ensure writable copies
+          ${pkgs.rsync}/bin/rsync -r --checksum --delete --chmod=u+rw ${srcBin}/ ${xmonadDir}/bin/
+          ${pkgs.rsync}/bin/rsync -r --checksum --delete --chmod=u+rw ${srcLib}/ ${xmonadDir}/lib/
+          ${pkgs.rsync}/bin/rsync --checksum --chmod=u+rw ${srcXmonadHs} ${xmonadDir}/xmonad.hs
+          mkdir -p ${xmonadDir}/data
+          ${pkgs.rsync}/bin/rsync --checksum --chmod=u+rw ${srcTemplate} ${xmonadDir}/data/keybinding-template.html
           chown -R ${userName}:users ${xmonadDir}
         '';
       };
@@ -110,7 +114,10 @@ in
         appName = "XMonad";
         sourcePath = "modules/nixos/opt/desktop/xmonad/.xmonad";
         targetPath = ".xmonad";
-        files = [ "xmonad.hs" "bin" "lib" "hotkey-template.html"];
+        files = [
+          "xmonad.hs" "bin" "lib"
+          { source = "lib/keybinding-template.html"; target = "data/keybinding-template.html"; }
+        ];
         reloadCmd = "xmonad --recompile && Mod+q";
       })
     ];

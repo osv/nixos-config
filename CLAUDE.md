@@ -438,12 +438,16 @@ mkTestConfigScript = pkgs: {
   appName           # Human-readable app name (for messages)
   sourcePath        # Path to source, relative to repo root
   targetPath        # Path to target, relative to $HOME
-  files             # List of files/dirs to symlink
+  files             # List of files/dirs to symlink (strings and/or attrsets)
   reloadCmd ? null  # Optional: reload command hint
 }
 ```
 
 The script automatically detects if `sourcePath` is a file or directory.
+
+**`files` list format** — supports two entry types:
+- **String**: `"file.el"` → source: `$REPO/$sourcePath/file.el`, target: `$HOME/$targetPath/file.el`
+- **Attrset**: `{ source = "lib/template.html"; target = "data/template.html"; }` → source relative to repo root, target relative to `targetPath`. Use this for files outside `sourcePath`.
 
 **Usage example in a module:**
 ```nix
@@ -463,7 +467,10 @@ in {
         appName = "Emacs Doom";
         sourcePath = "modules/nixos/opt/apps/emacs/config_doom";
         targetPath = ".config/doom";
-        files = [ "init.el" "config.el" "packages.el" "themes" ];
+        files = [
+          "init.el" "config.el" "packages.el" "themes"
+          { source = "lib/keybinding-template.html"; target = "keybinding-template.html"; }
+        ];
         reloadCmd = "SPC h r r"; # Instruction how to reload
       })
     ];
@@ -474,9 +481,10 @@ in {
 **Generated script behavior:**
 1. Validates source path exists
 2. Removes old symlinks/files from target
-3. Creates fresh symlinks for all listed files
-4. Prints verbose output showing what was done
-5. Shows reload command hint if provided
+3. Creates fresh symlinks for all listed files (simple from `sourcePath`, custom from repo root)
+4. For custom attrset entries, creates parent directories as needed
+5. Prints verbose output showing what was done
+6. Shows reload command hint if provided
 
 **IMPORTANT:** When adding new config files to a module, you MUST update the `files` list in the `mkTestConfigScript` call!
 
@@ -538,15 +546,43 @@ Keybindings documentation is generated to `~/.cache/nixos-config/keybinding/`.
 - `~/.cache/nixos-config/keybinding/<app-name>/index.html` — app keybindings
 - `~/.cache/nixos-config/keybinding/index.html` — main page with list of all apps
 
+**Shared template:** `lib/keybinding-template.html`
+
+The template handles:
+- Key parsing from combo strings (via `parseCombo()` in JS)
+- Cyclic Doom One color assignment to categories
+- Chord detection (space-separated combo parts)
+- Keyboard visualization, tooltips, search/filter
+
+**Data format** (inserted at `// app_keybinding_data` placeholder):
+```js
+const appConfig = {
+    title: 'App Name',
+    modifiers: { 'M': 'Super', 'C': 'Ctrl', 'S': 'Shift', 'M1': 'Alt' }
+};
+const categories = {
+    'category-id': 'Display Name',
+};
+const keybindings = [
+    ['M-C-r', 'category-id', 'Action description'],
+];
+```
+
+**Modifier maps for existing apps:**
+- XMonad: `{ 'M': 'Super', 'C': 'Ctrl', 'S': 'Shift', 'M1': 'Alt', 'M4': 'Super' }`
+- Emacs: `{ 'C': 'Ctrl', 'M': 'Alt', 's': 'Super', 'S': 'Shift', 'H': 'Hyper', 'A': 'Alt' }`
+
 **Adding keybindings for a new application:**
-1. Generate HTML to `~/.cache/nixos-config/keybinding/<app-name>/index.html`
-2. After generation, call `my-generate-keybindings-index` to update the main index page
-3. HTML should be self-contained (styles embedded), Doom One theme is recommended
+1. Create a generator that outputs `appConfig`, `categories`, and `keybindings` in the format above
+2. Set `appConfig.modifiers` to match the app's key notation
+3. Read the shared template and replace `// app_keybinding_data` with the generated JS
+4. Write output to `~/.cache/nixos-config/keybinding/<app-name>/index.html`
+5. Call `my-generate-keybindings-index` to update the main index page
 
 **Updating docs in repository:**
 - `make update-doc` — copies from cache to `docs/keybinding/`
 
-**Existing implementations (examples):**
+**Existing generators (examples):**
 - XMonad: `modules/nixos/opt/desktop/xmonad/.xmonad/lib/My/KeybindingsExport.hs`
 - Emacs: `modules/nixos/opt/apps/emacs/config_doom/keybindings-export.el`
 

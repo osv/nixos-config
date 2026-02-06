@@ -258,7 +258,7 @@ in
             "packages.el"
             "themes"
             "keybindings-export.el"
-            "keybindings-template.html"
+            { source = "lib/keybinding-template.html"; target = "keybinding-template.html"; }
           ];
           reloadCmd = "SPC h r r";
         })
@@ -280,7 +280,7 @@ in
         "doom/themes/doom-nano-light-theme.el".source = ./config_doom/themes/doom-nano-light-theme.el;
         "doom/themes/doom-nano-dark-theme.el".source = ./config_doom/themes/doom-nano-dark-theme.el;
         "doom/keybindings-export.el".source = ./config_doom/keybindings-export.el;
-        "doom/keybindings-template.html".source = ./config_doom/keybindings-template.html;
+        "doom/keybinding-template.html".source = ../../../../../lib/keybinding-template.html;
       };
     };
 

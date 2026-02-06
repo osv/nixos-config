@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emacs Keybindings - Visual Guide</title>
+    <title>Keybindings - Visual Guide</title>
     <style>
         :root {
             /* Doom One Theme Colors */
@@ -190,6 +190,19 @@
             flex-shrink: 0;
         }
 
+        .key.chord-trigger {
+            border: 2px dashed var(--chord-color, #a3b8cc);
+        }
+
+        .key.chord-trigger::before {
+            content: '\22EF';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.7rem;
+            color: var(--chord-color, #a3b8cc);
+        }
+
         .key.highlighted {
             background: linear-gradient(145deg, #4a4f5b, #3a3e48);
             transform: translateY(-3px);
@@ -367,13 +380,22 @@
             padding: 4px 8px;
             border-radius: 4px;
             white-space: nowrap;
-            min-width: 120px;
+            min-width: 100px;
             text-align: center;
         }
 
         .binding-action {
             flex: 1;
             font-size: 0.9rem;
+        }
+
+        .chord-badge {
+            font-size: 0.7rem;
+            background: var(--fg-alt);
+            color: var(--bg);
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 6px;
         }
 
         /* Responsive */
@@ -414,7 +436,7 @@
 </head>
 <body>
     <header>
-        <h1>Emacs Keybindings</h1>
+        <h1 id="page-title">Keybindings</h1>
         <div class="legend" id="legend"></div>
         <div class="controls">
             <input type="text" id="search" placeholder="Search keybindings...">
@@ -436,7 +458,191 @@
     <div id="tooltip"></div>
 
     <script>
-        // keybindings-data-placeholder
+        // app_keybinding_data
+        // Data will be inserted here by the app-specific generator.
+        // Expected variables: appConfig, categories, keybindings
+        //
+        // appConfig = { title: 'App Name', modifiers: { 'M': 'Super', ... } }
+        // categories = { 'cat-id': 'Display Name', ... }
+        // keybindings = [ ['combo', 'cat-id', 'action'], ... ]
+
+        // ===== Doom One color palette for cyclic category assignment =====
+        const doomColors = [
+            '#ff6c6b', '#da8548', '#ecbe7b', '#f0c674', '#98be65',
+            '#46d9ff', '#51afef', '#3071f7', '#a9a1e1', '#c678dd',
+            '#ff6ac1', '#fc7b7b', '#b5bd68', '#a3b8cc', '#be5046',
+            '#9f7efe', '#6c71c4',
+        ];
+
+        // ===== Special key normalization map (lowercase keys) =====
+        const specialKeyMap = {
+            'return': 'Enter', 'ret': 'Enter', 'enter': 'Enter',
+            'space': 'Space', 'spc': 'Space',
+            'backspace': 'Backspace', 'del': 'Backspace',
+            'tab': 'Tab', 'backtab': 'Backtab',
+            'escape': 'Escape', 'esc': 'Escape',
+            'left': 'Left', 'right': 'Right', 'up': 'Up', 'down': 'Down',
+            'home': 'Home', 'end': 'End',
+            'prior': 'PageUp', 'next': 'PageDown',
+            'delete': 'Delete', 'insert': 'Insert',
+            'scroll_lock': 'ScrollLock',
+            'print': 'Print',
+        };
+
+        // ===== Parse combo string into array of display keys =====
+        function parseCombo(combo, modifiers) {
+            // Handle chords: "M-s t" → parse "M-s" and "t" separately, concatenate
+            const chordParts = combo.split(' ');
+            if (chordParts.length > 1) {
+                let allKeys = [];
+                chordParts.forEach(part => {
+                    allKeys = allKeys.concat(parseSingleCombo(part, modifiers));
+                });
+                return allKeys;
+            }
+            return parseSingleCombo(combo, modifiers);
+        }
+
+        function parseSingleCombo(combo, modifiers) {
+            const keys = [];
+            // Split by '-' but handle double dash (e.g., "M--" → ['M', '-'])
+            // and angle bracket keys (e.g., "M-<Left>" → ['M', '<Left>'])
+            const tokens = tokenizeCombo(combo);
+
+            tokens.forEach(token => {
+                // Check if it's a known modifier (case-sensitive lookup)
+                if (modifiers[token]) {
+                    keys.push(modifiers[token]);
+                }
+                // Check for angle bracket special key: <Left>, <Return>, etc.
+                else if (token.startsWith('<') && token.endsWith('>')) {
+                    const inner = token.slice(1, -1);
+                    keys.push(normalizeKey(inner));
+                }
+                // Check for bare special keys: TAB, RET, SPC, ESC, DEL
+                else {
+                    keys.push(normalizeKey(token));
+                }
+            });
+
+            return keys;
+        }
+
+        function tokenizeCombo(combo) {
+            const tokens = [];
+            let i = 0;
+            while (i < combo.length) {
+                // Angle bracket key: <...>
+                if (combo[i] === '<') {
+                    const end = combo.indexOf('>', i);
+                    if (end !== -1) {
+                        tokens.push(combo.substring(i, end + 1));
+                        i = end + 1;
+                        // Skip trailing dash separator
+                        if (i < combo.length && combo[i] === '-') i++;
+                        continue;
+                    }
+                }
+
+                // Collect a token until we hit a dash separator
+                let token = '';
+                while (i < combo.length && combo[i] !== '-') {
+                    token += combo[i];
+                    i++;
+                }
+
+                if (i < combo.length && combo[i] === '-') {
+                    i++; // skip the dash
+                    // Check for double dash: if token is empty, this is a literal '-'
+                    if (token === '') {
+                        // We had a dash right after another dash (or at start)
+                        // This could be "M--" scenario: previous token was consumed,
+                        // and now we have a bare dash
+                        tokens.push('-');
+                        continue;
+                    }
+                    // Normal case: token is a modifier or key before dash separator
+                    tokens.push(token);
+                } else {
+                    // End of string
+                    if (token !== '') {
+                        tokens.push(token);
+                    }
+                }
+            }
+            return tokens;
+        }
+
+        function normalizeKey(token) {
+            // F-key: f1, F1, f12, etc.
+            const fMatch = token.match(/^[fF](\d+)$/);
+            if (fMatch) return 'F' + fMatch[1];
+
+            // Case-insensitive special key lookup
+            const lower = token.toLowerCase();
+            if (specialKeyMap[lower]) return specialKeyMap[lower];
+
+            // Single character: return as-is (preserving case for display)
+            return token;
+        }
+
+        // ===== Assign colors to categories cyclically =====
+        function assignCategoryColors(cats) {
+            const result = {};
+            let idx = 0;
+            for (const [catId, catName] of Object.entries(cats)) {
+                result[catId] = {
+                    name: catName,
+                    color: doomColors[idx % doomColors.length]
+                };
+                idx++;
+            }
+            return result;
+        }
+
+        // ===== Check if combo is a chord =====
+        function isChordCombo(combo) {
+            return combo.includes(' ');
+        }
+
+        // ===== Get chord trigger key (the key after the modifier prefix) =====
+        function getChordKey(combo) {
+            if (!isChordCombo(combo)) return null;
+            // For "M-s t": the chord trigger is 's'
+            const firstPart = combo.split(' ')[0];
+            const tokens = tokenizeCombo(firstPart);
+            // Last non-modifier token is the chord trigger
+            if (tokens.length > 0) {
+                return tokens[tokens.length - 1];
+            }
+            return null;
+        }
+
+        // ===== Initialize data =====
+        // Transform raw data into working structures
+
+        // Assign colors to categories
+        const categoriesWithColors = (typeof categories !== 'undefined') ? assignCategoryColors(categories) : {};
+
+        // Parse array-format keybindings into objects
+        const parsedKeybindings = (typeof keybindings !== 'undefined') ? keybindings.map(entry => {
+            const [combo, category, action] = entry;
+            const mods = (typeof appConfig !== 'undefined') ? appConfig.modifiers : {};
+            return {
+                combo: combo,
+                category: category,
+                action: action,
+                keys: parseCombo(combo, mods),
+                isChord: isChordCombo(combo),
+                chordKey: getChordKey(combo),
+            };
+        }) : [];
+
+        // Set page title
+        if (typeof appConfig !== 'undefined' && appConfig.title) {
+            document.title = appConfig.title + ' - Visual Guide';
+            document.getElementById('page-title').textContent = appConfig.title;
+        }
 
         // Keyboard layout (ANSI)
         const keyboardLayout = [
@@ -545,12 +751,12 @@
             ]
         ];
 
-        // Key ID mapping for lookups (Emacs notation to keyboard IDs)
+        // Key ID mapping for lookups (display name → keyboard element IDs)
         const keyIdMap = {
-            'Ctrl': ['Ctrl', 'RCtrl'],
-            'Alt': ['Alt', 'RAlt'],
             'Super': ['Super', 'RSuper'],
             'Shift': ['Shift', 'RShift'],
+            'Ctrl': ['Ctrl', 'RCtrl'],
+            'Alt': ['Alt', 'RAlt'],
             'Enter': ['Enter'],
             'Return': ['Enter'],
             'Backspace': ['Backspace'],
@@ -576,7 +782,7 @@
         let activeCategory = null;
         let searchQuery = '';
 
-        // Escape HTML special characters
+        // Escape HTML special characters to prevent tag interpretation
         function escapeHtml(text) {
             return text
                 .replace(/&/g, '&amp;')
@@ -589,8 +795,7 @@
         // Build key to bindings map
         function buildKeyBindingsMap() {
             const map = {};
-            if (typeof keybindings === 'undefined') return map;
-            keybindings.forEach(binding => {
+            parsedKeybindings.forEach(binding => {
                 binding.keys.forEach(key => {
                     const normalizedKey = key.toLowerCase();
                     if (!map[normalizedKey]) {
@@ -602,7 +807,7 @@
             return map;
         }
 
-        let keyBindingsMap = {};
+        const keyBindingsMap = buildKeyBindingsMap();
 
         // Render keyboard
         function renderKeyboard() {
@@ -662,15 +867,27 @@
 
                             // Add a dot for each unique category (max 6)
                             uniqueCats.slice(0, 6).forEach(catId => {
-                                if (categories[catId]) {
+                                if (categoriesWithColors[catId]) {
                                     const dot = document.createElement('div');
                                     dot.className = 'key-dot';
-                                    dot.style.background = categories[catId].color;
+                                    dot.style.background = categoriesWithColors[catId].color;
                                     dotsContainer.appendChild(dot);
                                 }
                             });
 
                             keyDiv.appendChild(dotsContainer);
+                        }
+
+                        // Check if chord trigger
+                        const chordBindings = parsedKeybindings.filter(b =>
+                            b.chordKey && b.chordKey.toLowerCase() === key.id.toLowerCase()
+                        );
+                        if (chordBindings.length > 0) {
+                            keyDiv.classList.add('chord-trigger');
+                            const chordCat = chordBindings[0].category;
+                            if (categoriesWithColors[chordCat]) {
+                                keyDiv.style.setProperty('--chord-color', categoriesWithColors[chordCat].color);
+                            }
                         }
 
                         // Hover events
@@ -691,7 +908,7 @@
             const normalizedId = keyId.toLowerCase();
             const bindings = keyBindingsMap[normalizedId] || [];
 
-            // Also check mapped IDs
+            // Also check mapped IDs (bidirectional lookup)
             for (const [alias, ids] of Object.entries(keyIdMap)) {
                 if (ids.map(i => i.toLowerCase()).includes(normalizedId)) {
                     const aliasBindings = keyBindingsMap[alias.toLowerCase()] || [];
@@ -730,7 +947,7 @@
 
             // Render each category group
             for (const [catId, catBindings] of Object.entries(groupedBindings)) {
-                const cat = categories[catId];
+                const cat = categoriesWithColors[catId];
                 if (!cat) continue;
                 html += `<div class="tooltip-category">`;
                 html += `<div class="tooltip-category-header" style="background: ${cat.color}; color: var(--bg);">${cat.name}</div>`;
@@ -811,20 +1028,20 @@
             const container = document.getElementById('keybindings-container');
             container.innerHTML = '';
 
-            if (typeof keybindings === 'undefined') {
-                container.innerHTML = '<p style="text-align: center; opacity: 0.6;">No keybindings data found. Run M-x keybindings-export-to-js in Emacs.</p>';
+            if (parsedKeybindings.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.6;">No keybindings data found.</p>';
                 return;
             }
 
             const groupedByCategory = {};
-            keybindings.forEach(b => {
+            parsedKeybindings.forEach(b => {
                 if (!groupedByCategory[b.category]) {
                     groupedByCategory[b.category] = [];
                 }
                 groupedByCategory[b.category].push(b);
             });
 
-            for (const [catId, catInfo] of Object.entries(categories)) {
+            for (const [catId, catInfo] of Object.entries(categoriesWithColors)) {
                 const bindings = groupedByCategory[catId] || [];
                 if (bindings.length === 0) continue;
 
@@ -846,8 +1063,13 @@
                     card.dataset.combo = b.combo;
                     card.style.borderColor = catInfo.color;
 
+                    let comboHtml = escapeHtml(b.combo);
+                    if (b.isChord) {
+                        comboHtml += `<span class="chord-badge">chord</span>`;
+                    }
+
                     card.innerHTML = `
-                        <span class="binding-combo">${escapeHtml(b.combo)}</span>
+                        <span class="binding-combo">${comboHtml}</span>
                         <span class="binding-action">${escapeHtml(b.action)}</span>
                     `;
 
@@ -866,9 +1088,7 @@
             const legend = document.getElementById('legend');
             legend.innerHTML = '';
 
-            if (typeof categories === 'undefined') return;
-
-            for (const [catId, catInfo] of Object.entries(categories)) {
+            for (const [catId, catInfo] of Object.entries(categoriesWithColors)) {
                 const item = document.createElement('div');
                 item.className = 'legend-item';
                 item.dataset.category = catId;
@@ -950,10 +1170,8 @@
                 key.style.opacity = activeCategory || searchQuery ? '0.4' : '1';
             });
 
-            if (typeof keybindings === 'undefined') return;
-
             // Highlight matching keys
-            keybindings.forEach(b => {
+            parsedKeybindings.forEach(b => {
                 const matchesCategory = !activeCategory || b.category === activeCategory;
                 const matchesSearch = !searchQuery ||
                     b.combo.toLowerCase().includes(searchQuery) ||
@@ -986,14 +1204,11 @@
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
-            keyBindingsMap = buildKeyBindingsMap();
             renderKeyboard();
             renderKeybindingsList();
             renderLegend();
 
-            if (typeof keybindings !== 'undefined') {
-                console.log(`Total keybindings: ${keybindings.length}`);
-            }
+            console.log(`Total keybindings: ${parsedKeybindings.length}`);
         });
     </script>
 </body>

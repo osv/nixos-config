@@ -6,8 +6,12 @@
 ;;; Commentary:
 
 ;; This module extracts keybindings from Emacs keymaps and exports them
-;; to a JavaScript file that can be used with an HTML visualization.
+;; to a JavaScript file that can be used with the shared HTML template.
 ;; Categories are based on Emacs modes (keymaps).
+;;
+;; Uses the shared template at lib/keybinding-template.html (repo root).
+;; The template handles color assignment, key parsing, and chord detection.
+;; This generator only needs to output: appConfig, categories, keybindings.
 
 ;;; Code:
 
@@ -24,17 +28,9 @@
   :group 'keybindings-export)
 
 (defcustom keybindings-export-template-file
-  (expand-file-name "~/.config/doom/keybindings-template.html")
-  "Path to HTML template file."
+  (expand-file-name "~/.config/doom/keybinding-template.html")
+  "Path to shared HTML template file."
   :type 'file
-  :group 'keybindings-export)
-
-(defcustom keybindings-export-colors
-  '("#ff6c6b" "#da8548" "#ecbe7b" "#98be65" "#46d9ff"
-    "#51afef" "#a9a1e1" "#c678dd" "#ff6ac1" "#b5bd68"
-    "#be5046" "#9f7efe" "#6c71c4" "#3071f7" "#f0c674")
-  "Colors for categories (Doom One theme palette)."
-  :type '(repeat string)
   :group 'keybindings-export)
 
 (defcustom keybindings-export-keymaps
@@ -109,59 +105,6 @@
       (memq cmd keybindings-export-ignore-commands)
       (null cmd)))
 
-(defun keybindings-export--parse-emacs-key (key-str)
-  "Parse Emacs key notation KEY-STR into list of individual keys.
-For example: 'C-x C-f' -> '(\"Ctrl\" \"x\" \"Ctrl\" \"f\")'
-             'M-x' -> '(\"Alt\" \"x\")'
-             'SPC f f' -> '(\"Space\" \"f\" \"f\")'"
-  (let ((parts (split-string key-str " " t))
-        result)
-    (dolist (part parts)
-      (cond
-       ;; Handle special keys
-       ((string= part "SPC") (push "Space" result))
-       ((string= part "RET") (push "Enter" result))
-       ((string= part "TAB") (push "Tab" result))
-       ((string= part "ESC") (push "Escape" result))
-       ((string= part "DEL") (push "Backspace" result))
-       ((string-match "^<\\(.+\\)>$" part)
-        ;; Handle <key> notation like <f1>, <left>, etc.
-        (let ((inner (match-string 1 part)))
-          (cond
-           ((string-match "^f\\([0-9]+\\)$" inner)
-            (push (concat "F" (match-string 1 inner)) result))
-           ((string= inner "left") (push "Left" result))
-           ((string= inner "right") (push "Right" result))
-           ((string= inner "up") (push "Up" result))
-           ((string= inner "down") (push "Down" result))
-           ((string= inner "return") (push "Enter" result))
-           ((string= inner "tab") (push "Tab" result))
-           ((string= inner "escape") (push "Escape" result))
-           ((string= inner "backspace") (push "Backspace" result))
-           ((string= inner "delete") (push "Delete" result))
-           ((string= inner "home") (push "Home" result))
-           ((string= inner "end") (push "End" result))
-           ((string= inner "prior") (push "PageUp" result))
-           ((string= inner "next") (push "PageDown" result))
-           (t (push (capitalize inner) result)))))
-       ;; Handle modifier combinations like C-x, M-x, C-M-x, s-x
-       ((string-match "^\\([CMAsSH]-\\)+\\(.\\)$" part)
-        (let ((mods (match-string 1 part))
-              (key (match-string 2 part)))
-          (when (string-match "C-" mods) (push "Ctrl" result))
-          (when (string-match "M-" mods) (push "Alt" result))
-          (when (string-match "s-" mods) (push "Super" result))
-          (when (string-match "S-" mods) (push "Shift" result))
-          (when (string-match "H-" mods) (push "Hyper" result))
-          (when (string-match "A-" mods) (push "Alt" result))
-          (push key result)))
-       ;; Single character
-       ((= (length part) 1)
-        (push part result))
-       ;; Other
-       (t (push part result))))
-    (nreverse result)))
-
 (defun keybindings-export--command-description (cmd)
   "Get description for command CMD."
   (or (and (symbolp cmd)
@@ -182,7 +125,6 @@ For example: 'C-x C-f' -> '(\"Ctrl\" \"x\" \"Ctrl\" \"f\")'
              (unless (or (keybindings-export--should-ignore-key key-str)
                          (keybindings-export--should-ignore-command def))
                (push (list :combo key-str
-                           :keys (keybindings-export--parse-emacs-key key-str)
                            :action (if (symbolp def)
                                        (symbol-name def)
                                      (format "%s" def))
@@ -217,45 +159,39 @@ Order matters: escape backslash FIRST, then other characters."
          (s4 (replace-regexp-in-string "\n" "\\\\n" s3)))           ; newline -> \n
     s4))
 
+(defun keybindings-export--generate-appconfig-js ()
+  "Generate JavaScript appConfig with Emacs modifier map."
+  (concat "const appConfig = {\n"
+          "    title: 'Emacs Keybindings',\n"
+          "    modifiers: { 'C': 'Ctrl', 'M': 'Alt', 's': 'Super', 'S': 'Shift', 'H': 'Hyper', 'A': 'Alt' }\n"
+          "};"))
+
 (defun keybindings-export--generate-categories-js ()
-  "Generate JavaScript object for categories."
-  (let ((lines '())
-        (idx 0)
-        (colors keybindings-export-colors))
+  "Generate JavaScript object for categories (simplified: id → name)."
+  (let ((lines '()))
     (dolist (keymap-spec keybindings-export-keymaps)
       (let* ((keymap-sym (car keymap-spec))
              (keymap-id (symbol-name keymap-sym))
-             (display-name (cdr keymap-spec))
-             (color (nth (mod idx (length colors)) colors)))
-        (push (format "    '%s': { name: '%s', color: '%s' }"
+             (display-name (cdr keymap-spec)))
+        (push (format "    '%s': '%s'"
                       keymap-id
-                      (keybindings-export--escape-js-string display-name)
-                      color)
-              lines)
-        (setq idx (1+ idx))))
+                      (keybindings-export--escape-js-string display-name))
+              lines)))
     (concat "const categories = {\n"
             (mapconcat #'identity (nreverse lines) ",\n")
             "\n};")))
 
 (defun keybindings-export--generate-keybindings-js (bindings)
-  "Generate JavaScript array for BINDINGS."
+  "Generate JavaScript array for BINDINGS (compact array format)."
   (let ((lines '()))
     (dolist (binding bindings)
       (let* ((combo (plist-get binding :combo))
-             (keys (plist-get binding :keys))
              (action (plist-get binding :action))
-             (category (plist-get binding :category))
-             (keys-js (concat "["
-                              (mapconcat (lambda (k)
-                                           (format "'%s'"
-                                                   (keybindings-export--escape-js-string k)))
-                                         keys ", ")
-                              "]")))
-        (push (format "    { combo: '%s', keys: %s, action: '%s', category: '%s' }"
+             (category (plist-get binding :category)))
+        (push (format "    ['%s', '%s', '%s']"
                       (keybindings-export--escape-js-string combo)
-                      keys-js
-                      (keybindings-export--escape-js-string action)
-                      category)
+                      (keybindings-export--escape-js-string category)
+                      (keybindings-export--escape-js-string action))
               lines)))
     (concat "const keybindings = [\n"
             (mapconcat #'identity (nreverse lines) ",\n")
@@ -264,7 +200,9 @@ Order matters: escape backslash FIRST, then other characters."
 (defun keybindings-export--generate-js ()
   "Generate complete JavaScript data."
   (let ((bindings (keybindings-export--extract-all-keymaps)))
-    (concat (keybindings-export--generate-categories-js)
+    (concat (keybindings-export--generate-appconfig-js)
+            "\n\n"
+            (keybindings-export--generate-categories-js)
             "\n\n"
             (keybindings-export--generate-keybindings-js bindings))))
 
@@ -275,7 +213,6 @@ Writes to `keybindings-export-output-dir'.
 If SILENT is non-nil, don't prompt to open browser."
   (interactive)
   (let* ((output-dir keybindings-export-output-dir)
-         (js-file (expand-file-name "keybindings-data.js" output-dir))
          (html-file (expand-file-name "index.html" output-dir))
          (template-file keybindings-export-template-file)
          (js-content (keybindings-export--generate-js)))
@@ -284,22 +221,17 @@ If SILENT is non-nil, don't prompt to open browser."
     (unless (file-directory-p output-dir)
       (make-directory output-dir t))
 
-    ;; Write JS data file
-    (with-temp-file js-file
-      (insert js-content))
-
     ;; Read template and insert JS data
     (if (file-exists-p template-file)
         (let ((template (with-temp-buffer
                           (insert-file-contents template-file)
                           (buffer-string))))
           (with-temp-file html-file
-            (insert (replace-regexp-in-string
-                     "// keybindings-data-placeholder.*"
+            (insert (string-replace
+                     "// app_keybinding_data"
                      js-content
-                     template nil t))))  ; FIXEDCASE=t to preserve replacement case
-      (message "Warning: Template file not found: %s" template-file)
-      (message "Only JS data file was created: %s" js-file))
+                     template))))
+      (message "Warning: Template file not found: %s" template-file))
 
     ;; Regenerate main keybindings index page
     (call-process "my-generate-keybindings-index" nil nil nil)
