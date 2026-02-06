@@ -80,6 +80,40 @@ const keybindings = [
 | `modules/nixos/opt/user/README.zsh.md` | Zsh keybinding reference |
 | `docs/keybinding/` | Cached HTML copies (updated via `make update-doc`) |
 
+## Updating Keybindings per App
+
+### XMonad
+
+Keybindings are defined as structured data in a single Haskell file:
+
+1. **Edit** `modules/nixos/opt/desktop/xmonad/.xmonad/lib/My/Keybindings.hs` — add/modify entries in `myKeybindingCategories`
+2. Each entry is `(combo, category, description, action)` — the combo and description are used directly for both XMonad and HTML export (no separate annotation needed)
+3. **Rebuild**: `nixos-rebuild switch --flake .#<host>` (XMonad restarts and re-exports automatically via startup hook)
+4. HTML is regenerated on every XMonad start — no manual trigger needed
+
+### Emacs
+
+Keybindings come from live Emacs keymaps, but the export is filtered by a configured list of keymaps:
+
+1. **Add keybindings** in Doom config as usual (`map!`, `define-key`, etc.)
+2. If exporting a **new keymap**, add it to `keybindings-export-keymaps` in `modules/nixos/opt/apps/emacs/config_doom/keybindings-export.el`
+3. **Trigger export**: Run `M-x nerv/export-keybindings` (or `SPC h E`, or `M-S-F1`) inside Emacs
+4. The export reads live `describe-bindings` data — no rebuild needed for keybinding changes, only for config file changes
+
+### Zsh
+
+Keybindings come from `bindkey -L` output at runtime, but the generator needs widget metadata:
+
+1. **Add the keybinding** in `modules/nixos/opt/user/default.nix` (in `initContent`, using `bindkey`)
+2. **Add widget metadata** to `widget_info` in `packages/my-generate-zsh-keybindings/my-generate-zsh-keybindings.zsh` — set category and description for new widgets
+3. **Update** `modules/nixos/opt/user/README.zsh.md` with the new keybinding
+4. **Rebuild**: `nixos-rebuild switch --flake .#<host>`
+5. **Trigger export**: Press `Alt+Shift+F1` in a terminal (opens browser automatically)
+
+### After Any Update
+
+Run `make update-doc` to copy generated HTML from `~/.cache/nixos-config/keybinding/` to `docs/keybinding/`.
+
 ## Adding a New App
 
 1. **Create a generator** that reads keybindings from the app and outputs JS in the shared data format above

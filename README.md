@@ -17,7 +17,8 @@ title: README
 
 # Documentation
 - [ZSH Configuration](modules/nixos/opt/user/README.zsh.md) - Shell commands, key bindings, and plugins
-- [Keybindings](docs/keybinding/) - Keyboard shortcuts for XMonad, Emacs, etc.
+- [Keybindings](docs/keybinding/) - Keyboard shortcuts for XMonad, Emacs, Zsh
+- [Keybinding Architecture](docs/keybinding-architecture.md) - How the export system works
 
 ## Keybindings Documentation
 
@@ -27,6 +28,7 @@ Keybindings are auto-generated to `~/.cache/nixos-config/keybinding/`:
 |-------------|----------------|--------|
 | XMonad | On XMonad startup | `KeybindingsExport.hs` |
 | Emacs | On `SPC h E` or `M-S-F1` | `keybindings-export.el` |
+| Zsh | On `Alt+Shift+F1` in terminal | `my-generate-zsh-keybindings.zsh` |
 
 - **View**: Press `M-S-F1` in XMonad or Emacs to open the main index page
 - **Update docs/**: Run `make update-doc` to copy from cache to repository
