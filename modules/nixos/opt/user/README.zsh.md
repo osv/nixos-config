@@ -21,6 +21,7 @@ This document provides a comprehensive list of commands and functionality availa
 - `Ctrl+Right`: Move forward by word
 - `Ctrl+G`: **fzf-marks** - Jump to bookmarked directories
 - `Ctrl+X /`: Force file path completion (same as Emacs)
+- `Alt+Shift+F1`: Export all keybindings to interactive HTML documentation
 
 ## Available Commands by Category
 

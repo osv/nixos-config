@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keybindings - Visual Guide</title>
+    <style>
+        :root {
+            /* Doom One Theme Colors */
+            --bg: #282c34;
+            --bg-alt: #21242b;
+            --fg: #bbc2cf;
+            --fg-alt: #5b6268;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--fg);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            background: var(--bg-alt);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .legend-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .legend-item.active {
+            outline: 2px solid var(--fg);
+        }
+
+        .legend-chip {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        #search {
+            padding: 10px 15px;
+            border: 2px solid var(--fg-alt);
+            border-radius: 8px;
+            background: var(--bg-alt);
+            color: var(--fg);
+            font-size: 1rem;
+            width: 300px;
+            transition: border-color 0.2s;
+        }
+
+        #search:focus {
+            outline: none;
+            border-color: #46d9ff;
+        }
+
+        #search::placeholder {
+            color: var(--fg-alt);
+        }
+
+        .reset-btn {
+            padding: 10px 20px;
+            background: #ff6c6b;
+            border: none;
+            border-radius: 8px;
+            color: var(--bg);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 108, 107, 0.4);
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .keyboard-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+
+        .keyboard {
+            background: var(--bg-alt);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .keyboard-row {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .key {
+            min-width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #3a3f4b, #2a2e38);
+            border: 1px solid #404550;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--fg-alt);
+            cursor: default;
+            transition: all 0.15s;
+            position: relative;
+            user-select: none;
+        }
+
+        .key:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .key.has-binding {
+            color: var(--fg);
+            border-color: #505560;
+        }
+
+        .key-dots {
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            display: flex;
+            flex-wrap: wrap-reverse;
+            gap: 2px;
+            max-width: 24px;
+            justify-content: flex-end;
+        }
+
+        .key-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .key.chord-trigger {
+            border: 2px dashed var(--chord-color, #a3b8cc);
+        }
+
+        .key.chord-trigger::before {
+            content: '\22EF';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.7rem;
+            color: var(--chord-color, #a3b8cc);
+        }
+
+        .key.highlighted {
+            background: linear-gradient(145deg, #4a4f5b, #3a3e48);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+        }
+
+        /* Key sizes */
+        .key-1-25 { min-width: 65px; }
+        .key-1-5 { min-width: 78px; }
+        .key-1-75 { min-width: 91px; }
+        .key-2 { min-width: 104px; }
+        .key-2-25 { min-width: 117px; }
+        .key-2-75 { min-width: 143px; }
+        .key-6-25 { min-width: 338px; }
+
+        .key-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .key-sub {
+            font-size: 0.6rem;
+            opacity: 0.7;
+        }
+
+        /* Tooltip */
+        #tooltip {
+            position: fixed;
+            background: var(--bg-alt);
+            border: 2px solid var(--fg-alt);
+            border-radius: 8px;
+            padding: 12px 16px;
+            max-width: 400px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        #tooltip.visible {
+            opacity: 1;
+        }
+
+        .tooltip-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--fg);
+            border-bottom: 1px solid var(--fg-alt);
+            padding-bottom: 6px;
+        }
+
+        .tooltip-category {
+            margin-top: 8px;
+        }
+
+        .tooltip-category:first-of-type {
+            margin-top: 0;
+        }
+
+        .tooltip-category-header {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .tooltip-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+            padding-left: 8px;
+            font-size: 0.9rem;
+        }
+
+        .tooltip-combo {
+            font-family: monospace;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .tooltip-action {
+            color: var(--fg);
+        }
+
+        /* Keybindings List */
+        .keybindings-list {
+            margin-top: 40px;
+        }
+
+        .keybindings-list h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--fg);
+        }
+
+        #keybindings-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .category-section {
+            background: var(--bg-alt);
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.2s;
+        }
+
+        .category-section.hidden {
+            display: none;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid;
+        }
+
+        .category-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .category-count {
+            margin-left: auto;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .binding-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            margin: 4px 0;
+            background: var(--bg);
+            border-radius: 6px;
+            border-left: 3px solid;
+            transition: all 0.15s;
+            cursor: default;
+        }
+
+        .binding-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .binding-card.highlighted {
+            transform: translateX(8px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+
+        .binding-card.hidden {
+            display: none;
+        }
+
+        .binding-combo {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            background: var(--bg-alt);
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .binding-action {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .chord-badge {
+            font-size: 0.7rem;
+            background: var(--fg-alt);
+            color: var(--bg);
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 6px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .keyboard {
+                transform: scale(0.8);
+                transform-origin: top center;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .legend {
+                gap: 6px;
+            }
+
+            .legend-item {
+                font-size: 0.75rem;
+                padding: 3px 8px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .keyboard {
+                transform: scale(0.6);
+            }
+
+            #keybindings-container {
+                grid-template-columns: 1fr;
+            }
+
+            #search {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="page-title">Keybindings</h1>
+        <div class="legend" id="legend"></div>
+        <div class="controls">
+            <input type="text" id="search" placeholder="Search keybindings...">
+            <button class="reset-btn" onclick="resetFilters()">Reset Filters</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="keyboard-container">
+            <div class="keyboard" id="keyboard"></div>
+        </section>
+
+        <section class="keybindings-list">
+            <h2>All Keybindings</h2>
+            <div id="keybindings-container"></div>
+        </section>
+    </main>
+
+    <div id="tooltip"></div>
+
+    <script>
+const appConfig = {
+    title: 'Zsh Keybindings',
+    modifiers: { 'C': 'Ctrl', 'M': 'Alt', 'S': 'Shift' }
+};
+const categories = {
+    'navigation': 'Navigation',
+    'history': 'History',
+    'editing': 'Editing',
+    'completion': 'Completion',
+    'plugins': 'Plugins',
+    'misc': 'Miscellaneous'
+};
+const keybindings = [
+    ['^@', 'editing', 'Set mark at cursor'],
+    ['^A', 'navigation', 'Go to beginning of line'],
+    ['^B', 'navigation', 'Move backward one character'],
+    ['^D', 'editing', 'Delete char or list completions'],
+    ['^E', 'navigation', 'Go to end of line'],
+    ['^F', 'navigation', 'Move forward one character'],
+    ['^G', 'plugins', 'FZF-marks: Jump to bookmark'],
+    ['^H', 'misc', 'autopair delete'],
+    ['Tab', 'misc', 'fzf completion'],
+    ['Enter', 'misc', 'Accept and execute line'],
+    ['^K', 'editing', 'Kill from cursor to end of line'],
+    ['^L', 'misc', 'Clear screen'],
+    ['^N', 'history', 'Move down in history or multi-line'],
+    ['^O', 'history', 'Accept line and show next history'],
+    ['^P', 'history', 'Move up in history or multi-line'],
+    ['^Q', 'misc', 'Push line to stack'],
+    ['^R', 'plugins', 'FZF: Search history (Ctrl+R)'],
+    ['^S', 'history', 'Incremental search forward (Ctrl+S)'],
+    ['^T', 'plugins', 'FZF: Find files (Ctrl+T)'],
+    ['^U', 'editing', 'Kill entire line'],
+    ['^V', 'editing', 'Insert next character literally'],
+    ['^W', 'misc', 'autopair delete word'],
+    ['^X^B', 'navigation', 'Go to matching bracket'],
+    ['^X^F', 'navigation', 'Find next character'],
+    ['^X^J', 'editing', 'Join lines (vi J)'],
+    ['^X^K', 'editing', 'Kill entire buffer'],
+    ['^X^N', 'history', 'Infer next history line'],
+    ['^X^O', 'editing', 'Toggle overwrite mode'],
+    ['^X^R', 'completion', 'Read completion specification'],
+    ['^X^U', 'editing', 'Undo last change'],
+    ['^X^V', 'misc', 'Enter vi command mode'],
+    ['^X^X', 'editing', 'Swap cursor and mark'],
+    ['C-x *', 'completion', 'Expand current word'],
+    ['C-x /', 'completion', 'Force file path completion'],
+    ['C-x =', 'misc', 'what cursor position'],
+    ['C-x ?', 'misc', '_complete_debug'],
+    ['C-x c', 'completion', 'Correct current word'],
+    ['C-x g', 'completion', 'List expansion of current word'],
+    ['C-x a', 'completion', 'Expand alias under cursor'],
+    ['C-x d', 'misc', '_list_expansions'],
+    ['C-x e', 'misc', '_expand_word'],
+    ['C-x h', 'completion', 'Show completion system info'],
+    ['C-x m', 'completion', 'Complete most recent file'],
+    ['C-x n', 'completion', 'Next completion tag group'],
+    ['C-x r', 'history', 'Incremental search backward (Ctrl+R)'],
+    ['C-x s', 'history', 'Incremental search forward (Ctrl+S)'],
+    ['C-x t', 'misc', '_complete_tag'],
+    ['C-x u', 'editing', 'Undo last change'],
+    ['C-x ~', 'misc', '_bash_list choices'],
+    ['^Y', 'editing', 'Yank (paste) killed text'],
+    ['C-M-d', 'completion', 'List possible completions'],
+    ['C-M-g', 'misc', 'Abort current command'],
+    ['C-M-h', 'editing', 'Kill word backward'],
+    ['C-M-l', 'misc', 'Clear screen'],
+    ['M-^_', 'editing', 'Copy previous word'],
+    ['M- ', 'completion', 'Expand history references'],
+    ['M-!', 'completion', 'Expand history references'],
+    ['M-\"', 'misc', 'quote region'],
+    ['M-\$', 'misc', 'Spell-check current word'],
+    ['M-\'', 'misc', 'quote line'],
+    ['M-,', 'completion', 'Complete from newer history'],
+    ['M-.', 'misc', 'insert last word'],
+    ['M-/', 'completion', 'Complete from older history'],
+    ['M-<', 'history', 'Go to first line of history'],
+    ['M->', 'history', 'Go to last line of history'],
+    ['M-?', 'misc', 'Show which command'],
+    ['M-a', 'misc', 'accept and hold'],
+    ['M-b', 'navigation', 'Move backward one word'],
+    ['M-c', 'plugins', 'FZF: Change directory (Alt+C)'],
+    ['M-d', 'editing', 'Kill word forward'],
+    ['M-f', 'navigation', 'Move forward one word'],
+    ['M-g', 'misc', 'Pop line from stack'],
+    ['M-h', 'misc', 'Show help for command'],
+    ['M-l', 'editing', 'Lowercase word'],
+    ['M-n', 'history', 'Search forward in history'],
+    ['M-OA', 'history', 'Move up in history or multi-line'],
+    ['M-OB', 'history', 'Move down in history or multi-line'],
+    ['M-OC', 'navigation', 'Move forward one character'],
+    ['M-OD', 'navigation', 'Move backward one character'],
+    ['M-OF', 'navigation', 'Go to end of line'],
+    ['M-OH', 'navigation', 'Go to beginning of line'],
+    ['M-p', 'history', 'Search backward in history'],
+    ['M-q', 'misc', 'Push line to stack'],
+    ['M-s', 'misc', 'Spell-check current word'],
+    ['M-t', 'editing', 'Transpose words'],
+    ['M-u', 'editing', 'Uppercase word'],
+    ['M-w', 'editing', 'Copy region to kill ring'],
+    ['S-M-<F1>', 'plugins', 'Export keybindings to HTML'],
+    ['C-<Right>', 'navigation', 'Move forward one word'],
+    ['C-<Left>', 'navigation', 'Move backward one word'],
+    ['<Unknown-200>', 'misc', 'bracketed paste'],
+    ['<Insert>', 'editing', 'Toggle overwrite mode'],
+    ['<Delete>', 'editing', 'Delete character forward'],
+    ['<PageUp>', 'history', 'Go to first line of history'],
+    ['<PageDown>', 'history', 'Go to last line of history'],
+    ['<Up>', 'history', 'Search backward from current input'],
+    ['<Down>', 'history', 'Search forward from current input'],
+    ['<Right>', 'navigation', 'Move forward one character'],
+    ['<Left>', 'navigation', 'Move backward one character'],
+    ['M-_', 'misc', 'insert last word'],
+    ['M-x', 'misc', 'Execute named ZLE command'],
+    ['M-y', 'editing', 'Cycle through kill ring'],
+    ['M-z', 'misc', 'Repeat last named command'],
+    ['M-', '', 'navigation|Go to column'],
+    ['M-~', 'misc', '_bash_complete word'],
+    ['M-^?', 'editing', 'Kill word backward'],
+    ['^_', 'editing', 'Undo last change'],
+    [' ', 'misc', 'autopair insert'],
+    ['\"', 'misc', 'autopair insert'],
+    [')', 'misc', 'autopair close'],
+    ['[', 'misc', 'autopair insert'],
+    [']', 'misc', 'autopair close'],
+    ['\`', 'misc', 'autopair insert'],
+    ['{', 'misc', 'autopair insert'],
+    ['}', 'misc', 'autopair close'],
+    ['<Backspace>', 'misc', 'autopair delete'],
+];
+        // Data will be inserted here by the app-specific generator.
+        // Expected variables: appConfig, categories, keybindings
+        //
+        // appConfig = { title: 'App Name', modifiers: { 'M': 'Super', ... } }
+        // categories = { 'cat-id': 'Display Name', ... }
+        // keybindings = [ ['combo', 'cat-id', 'action'], ... ]
+
+        // ===== Doom One color palette for cyclic category assignment =====
+        const doomColors = [
+            '#ff6c6b', '#da8548', '#ecbe7b', '#f0c674', '#98be65',
+            '#46d9ff', '#51afef', '#3071f7', '#a9a1e1', '#c678dd',
+            '#ff6ac1', '#fc7b7b', '#b5bd68', '#a3b8cc', '#be5046',
+            '#9f7efe', '#6c71c4',
+        ];
+
+        // ===== Special key normalization map (lowercase keys) =====
+        const specialKeyMap = {
+            'return': 'Enter', 'ret': 'Enter', 'enter': 'Enter',
+            'space': 'Space', 'spc': 'Space',
+            'backspace': 'Backspace', 'del': 'Backspace',
+            'tab': 'Tab', 'backtab': 'Backtab',
+            'escape': 'Escape', 'esc': 'Escape',
+            'left': 'Left', 'right': 'Right', 'up': 'Up', 'down': 'Down',
+            'home': 'Home', 'end': 'End',
+            'prior': 'PageUp', 'next': 'PageDown',
+            'delete': 'Delete', 'insert': 'Insert',
+            'scroll_lock': 'ScrollLock',
+            'print': 'Print',
+        };
+
+        // ===== Parse combo string into array of display keys =====
+        function parseCombo(combo, modifiers) {
+            // Handle chords: "M-s t" → parse "M-s" and "t" separately, concatenate
+            const chordParts = combo.split(' ');
+            if (chordParts.length > 1) {
+                let allKeys = [];
+                chordParts.forEach(part => {
+                    allKeys = allKeys.concat(parseSingleCombo(part, modifiers));
+                });
+                return allKeys;
+            }
+            return parseSingleCombo(combo, modifiers);
+        }
+
+        function parseSingleCombo(combo, modifiers) {
+            const keys = [];
+            // Split by '-' but handle double dash (e.g., "M--" → ['M', '-'])
+            // and angle bracket keys (e.g., "M-<Left>" → ['M', '<Left>'])
+            const tokens = tokenizeCombo(combo);
+
+            tokens.forEach(token => {
+                // Check if it's a known modifier (case-sensitive lookup)
+                if (modifiers[token]) {
+                    keys.push(modifiers[token]);
+                }
+                // Check for angle bracket special key: <Left>, <Return>, etc.
+                else if (token.startsWith('<') && token.endsWith('>')) {
+                    const inner = token.slice(1, -1);
+                    keys.push(normalizeKey(inner));
+                }
+                // Check for bare special keys: TAB, RET, SPC, ESC, DEL
+                else {
+                    keys.push(normalizeKey(token));
+                }
+            });
+
+            return keys;
+        }
+
+        function tokenizeCombo(combo) {
+            const tokens = [];
+            let i = 0;
+            while (i < combo.length) {
+                // Angle bracket key: <...>
+                if (combo[i] === '<') {
+                    const end = combo.indexOf('>', i);
+                    if (end !== -1) {
+                        tokens.push(combo.substring(i, end + 1));
+                        i = end + 1;
+                        // Skip trailing dash separator
+                        if (i < combo.length && combo[i] === '-') i++;
+                        continue;
+                    }
+                }
+
+                // Collect a token until we hit a dash separator
+                let token = '';
+                while (i < combo.length && combo[i] !== '-') {
+                    token += combo[i];
+                    i++;
+                }
+
+                if (i < combo.length && combo[i] === '-') {
+                    i++; // skip the dash
+                    // Check for double dash: if token is empty, this is a literal '-'
+                    if (token === '') {
+                        // We had a dash right after another dash (or at start)
+                        // This could be "M--" scenario: previous token was consumed,
+                        // and now we have a bare dash
+                        tokens.push('-');
+                        continue;
+                    }
+                    // Normal case: token is a modifier or key before dash separator
+                    tokens.push(token);
+                } else {
+                    // End of string
+                    if (token !== '') {
+                        tokens.push(token);
+                    }
+                }
+            }
+            return tokens;
+        }
+
+        function normalizeKey(token) {
+            // F-key: f1, F1, f12, etc.
+            const fMatch = token.match(/^[fF](\d+)$/);
+            if (fMatch) return 'F' + fMatch[1];
+
+            // Case-insensitive special key lookup
+            const lower = token.toLowerCase();
+            if (specialKeyMap[lower]) return specialKeyMap[lower];
+
+            // Single character: return as-is (preserving case for display)
+            return token;
+        }
+
+        // ===== Assign colors to categories cyclically =====
+        function assignCategoryColors(cats) {
+            const result = {};
+            let idx = 0;
+            for (const [catId, catName] of Object.entries(cats)) {
+                result[catId] = {
+                    name: catName,
+                    color: doomColors[idx % doomColors.length]
+                };
+                idx++;
+            }
+            return result;
+        }
+
+        // ===== Check if combo is a chord =====
+        function isChordCombo(combo) {
+            return combo.includes(' ');
+        }
+
+        // ===== Get chord trigger key (the key after the modifier prefix) =====
+        function getChordKey(combo) {
+            if (!isChordCombo(combo)) return null;
+            // For "M-s t": the chord trigger is 's'
+            const firstPart = combo.split(' ')[0];
+            const tokens = tokenizeCombo(firstPart);
+            // Last non-modifier token is the chord trigger
+            if (tokens.length > 0) {
+                return tokens[tokens.length - 1];
+            }
+            return null;
+        }
+
+        // ===== Initialize data =====
+        // Transform raw data into working structures
+
+        // Assign colors to categories
+        const categoriesWithColors = (typeof categories !== 'undefined') ? assignCategoryColors(categories) : {};
+
+        // Parse array-format keybindings into objects
+        const parsedKeybindings = (typeof keybindings !== 'undefined') ? keybindings.map(entry => {
+            const [combo, category, action] = entry;
+            const mods = (typeof appConfig !== 'undefined') ? appConfig.modifiers : {};
+            return {
+                combo: combo,
+                category: category,
+                action: action,
+                keys: parseCombo(combo, mods),
+                isChord: isChordCombo(combo),
+                chordKey: getChordKey(combo),
+            };
+        }) : [];
+
+        // Set page title
+        if (typeof appConfig !== 'undefined' && appConfig.title) {
+            document.title = appConfig.title + ' - Visual Guide';
+            document.getElementById('page-title').textContent = appConfig.title;
+        }
+
+        // Keyboard layout (ANSI)
+        const keyboardLayout = [
+            // Row 1: Function keys
+            [
+                { id: 'Escape', label: 'Esc', width: 1 },
+                { id: 'F1', label: 'F1', width: 1 },
+                { id: 'F2', label: 'F2', width: 1 },
+                { id: 'F3', label: 'F3', width: 1 },
+                { id: 'F4', label: 'F4', width: 1 },
+                { id: 'F5', label: 'F5', width: 1 },
+                { id: 'F6', label: 'F6', width: 1 },
+                { id: 'F7', label: 'F7', width: 1 },
+                { id: 'F8', label: 'F8', width: 1 },
+                { id: 'F9', label: 'F9', width: 1 },
+                { id: 'F10', label: 'F10', width: 1 },
+                { id: 'F11', label: 'F11', width: 1 },
+                { id: 'F12', label: 'F12', width: 1 }
+            ],
+            // Row 2: Numbers
+            [
+                { id: '`', label: '`', sub: '~', width: 1 },
+                { id: '1', label: '1', sub: '!', width: 1 },
+                { id: '2', label: '2', sub: '@', width: 1 },
+                { id: '3', label: '3', sub: '#', width: 1 },
+                { id: '4', label: '4', sub: '$', width: 1 },
+                { id: '5', label: '5', sub: '%', width: 1 },
+                { id: '6', label: '6', sub: '^', width: 1 },
+                { id: '7', label: '7', sub: '&', width: 1 },
+                { id: '8', label: '8', sub: '*', width: 1 },
+                { id: '9', label: '9', sub: '(', width: 1 },
+                { id: '0', label: '0', sub: ')', width: 1 },
+                { id: '-', label: '-', sub: '_', width: 1 },
+                { id: '=', label: '=', sub: '+', width: 1 },
+                { id: 'Backspace', label: 'Backspace', width: 2 }
+            ],
+            // Row 3: QWERTY top
+            [
+                { id: 'Tab', label: 'Tab', width: 1.5 },
+                { id: 'q', label: 'Q', width: 1 },
+                { id: 'w', label: 'W', width: 1 },
+                { id: 'e', label: 'E', width: 1 },
+                { id: 'r', label: 'R', width: 1 },
+                { id: 't', label: 'T', width: 1 },
+                { id: 'y', label: 'Y', width: 1 },
+                { id: 'u', label: 'U', width: 1 },
+                { id: 'i', label: 'I', width: 1 },
+                { id: 'o', label: 'O', width: 1 },
+                { id: 'p', label: 'P', width: 1 },
+                { id: '[', label: '[', sub: '{', width: 1 },
+                { id: ']', label: ']', sub: '}', width: 1 },
+                { id: '\\', label: '\\', sub: '|', width: 1.5 }
+            ],
+            // Row 4: Home row
+            [
+                { id: 'CapsLock', label: 'Caps', width: 1.75 },
+                { id: 'a', label: 'A', width: 1 },
+                { id: 's', label: 'S', width: 1 },
+                { id: 'd', label: 'D', width: 1 },
+                { id: 'f', label: 'F', width: 1 },
+                { id: 'g', label: 'G', width: 1 },
+                { id: 'h', label: 'H', width: 1 },
+                { id: 'j', label: 'J', width: 1 },
+                { id: 'k', label: 'K', width: 1 },
+                { id: 'l', label: 'L', width: 1 },
+                { id: ';', label: ';', sub: ':', width: 1 },
+                { id: "'", label: "'", sub: '"', width: 1 },
+                { id: 'Enter', label: 'Enter', width: 2.25 }
+            ],
+            // Row 5: Bottom letters
+            [
+                { id: 'Shift', label: 'Shift', width: 2.25, modifier: true },
+                { id: 'z', label: 'Z', width: 1 },
+                { id: 'x', label: 'X', width: 1 },
+                { id: 'c', label: 'C', width: 1 },
+                { id: 'v', label: 'V', width: 1 },
+                { id: 'b', label: 'B', width: 1 },
+                { id: 'n', label: 'N', width: 1 },
+                { id: 'm', label: 'M', width: 1 },
+                { id: ',', label: ',', sub: '<', width: 1 },
+                { id: '.', label: '.', sub: '>', width: 1 },
+                { id: '/', label: '/', sub: '?', width: 1 },
+                { id: 'RShift', label: 'Shift', width: 2.75, modifier: true }
+            ],
+            // Row 6: Bottom row
+            [
+                { id: 'Ctrl', label: 'Ctrl', width: 1.25, modifier: true },
+                { id: 'Super', label: 'Super', width: 1.25, modifier: true },
+                { id: 'Alt', label: 'Alt', width: 1.25, modifier: true },
+                { id: 'Space', label: '', width: 6.25 },
+                { id: 'RAlt', label: 'Alt', width: 1.25, modifier: true },
+                { id: 'RSuper', label: 'Super', width: 1.25, modifier: true },
+                { id: 'Menu', label: 'Menu', width: 1.25 },
+                { id: 'RCtrl', label: 'Ctrl', width: 1.25, modifier: true }
+            ],
+            // Arrow keys (separate row visually)
+            [
+                { id: 'spacer1', label: '', width: 10.25, spacer: true },
+                { id: 'Up', label: '\u2191', width: 1 }
+            ],
+            [
+                { id: 'spacer2', label: '', width: 9.25, spacer: true },
+                { id: 'Left', label: '\u2190', width: 1 },
+                { id: 'Down', label: '\u2193', width: 1 },
+                { id: 'Right', label: '\u2192', width: 1 }
+            ]
+        ];
+
+        // Key ID mapping for lookups (display name → keyboard element IDs)
+        const keyIdMap = {
+            'Super': ['Super', 'RSuper'],
+            'Shift': ['Shift', 'RShift'],
+            'Ctrl': ['Ctrl', 'RCtrl'],
+            'Alt': ['Alt', 'RAlt'],
+            'Enter': ['Enter'],
+            'Return': ['Enter'],
+            'Backspace': ['Backspace'],
+            'Space': ['Space'],
+            'Tab': ['Tab'],
+            'Escape': ['Escape'],
+            'Left': ['Left'],
+            'Right': ['Right'],
+            'Up': ['Up'],
+            'Down': ['Down'],
+            'F1': ['F1'], 'F2': ['F2'], 'F3': ['F3'], 'F4': ['F4'],
+            'F5': ['F5'], 'F6': ['F6'], 'F7': ['F7'], 'F8': ['F8'],
+            'F9': ['F9'], 'F10': ['F10'], 'F11': ['F11'], 'F12': ['F12'],
+            'CapsLock': ['CapsLock'],
+            'Delete': ['Delete'],
+            'Home': ['Home'],
+            'End': ['End'],
+            'PageUp': ['PageUp'],
+            'PageDown': ['PageDown']
+        };
+
+        // State
+        let activeCategory = null;
+        let searchQuery = '';
+
+        // Escape HTML special characters to prevent tag interpretation
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Build key to bindings map
+        function buildKeyBindingsMap() {
+            const map = {};
+            parsedKeybindings.forEach(binding => {
+                binding.keys.forEach(key => {
+                    const normalizedKey = key.toLowerCase();
+                    if (!map[normalizedKey]) {
+                        map[normalizedKey] = [];
+                    }
+                    map[normalizedKey].push(binding);
+                });
+            });
+            return map;
+        }
+
+        const keyBindingsMap = buildKeyBindingsMap();
+
+        // Render keyboard
+        function renderKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            keyboard.innerHTML = '';
+
+            keyboardLayout.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+
+                row.forEach(key => {
+                    if (key.spacer) {
+                        const spacer = document.createElement('div');
+                        spacer.style.width = `${key.width * 54}px`;
+                        rowDiv.appendChild(spacer);
+                        return;
+                    }
+
+                    const keyDiv = document.createElement('div');
+                    keyDiv.className = 'key';
+                    keyDiv.dataset.keyId = key.id;
+
+                    // Set width
+                    if (key.width > 1) {
+                        const widthClass = `key-${key.width.toString().replace('.', '-')}`;
+                        keyDiv.classList.add(widthClass);
+                    }
+
+                    // Add label
+                    const labelSpan = document.createElement('span');
+                    labelSpan.className = 'key-label';
+                    labelSpan.textContent = key.label;
+                    keyDiv.appendChild(labelSpan);
+
+                    if (key.sub) {
+                        const subSpan = document.createElement('span');
+                        subSpan.className = 'key-sub';
+                        subSpan.textContent = key.sub;
+                        keyDiv.appendChild(subSpan);
+                    }
+
+                    // Check for bindings
+                    const bindings = getBindingsForKey(key.id);
+                    if (bindings.length > 0) {
+                        keyDiv.classList.add('has-binding');
+
+                        // Skip dots for modifier keys
+                        const isModifier = key.modifier;
+
+                        if (!isModifier) {
+                            // Get unique categories for this key
+                            const uniqueCats = [...new Set(bindings.map(b => b.category))];
+
+                            // Create dots container
+                            const dotsContainer = document.createElement('div');
+                            dotsContainer.className = 'key-dots';
+
+                            // Add a dot for each unique category (max 6)
+                            uniqueCats.slice(0, 6).forEach(catId => {
+                                if (categoriesWithColors[catId]) {
+                                    const dot = document.createElement('div');
+                                    dot.className = 'key-dot';
+                                    dot.style.background = categoriesWithColors[catId].color;
+                                    dotsContainer.appendChild(dot);
+                                }
+                            });
+
+                            keyDiv.appendChild(dotsContainer);
+                        }
+
+                        // Check if chord trigger
+                        const chordBindings = parsedKeybindings.filter(b =>
+                            b.chordKey && b.chordKey.toLowerCase() === key.id.toLowerCase()
+                        );
+                        if (chordBindings.length > 0) {
+                            keyDiv.classList.add('chord-trigger');
+                            const chordCat = chordBindings[0].category;
+                            if (categoriesWithColors[chordCat]) {
+                                keyDiv.style.setProperty('--chord-color', categoriesWithColors[chordCat].color);
+                            }
+                        }
+
+                        // Hover events
+                        keyDiv.addEventListener('mouseenter', (e) => showTooltip(e, key.id, bindings));
+                        keyDiv.addEventListener('mouseleave', hideTooltip);
+                        keyDiv.addEventListener('mouseenter', () => highlightCards(bindings));
+                        keyDiv.addEventListener('mouseleave', unhighlightCards);
+                    }
+
+                    rowDiv.appendChild(keyDiv);
+                });
+
+                keyboard.appendChild(rowDiv);
+            });
+        }
+
+        function getBindingsForKey(keyId) {
+            const normalizedId = keyId.toLowerCase();
+            const bindings = keyBindingsMap[normalizedId] || [];
+
+            // Also check mapped IDs (bidirectional lookup)
+            for (const [alias, ids] of Object.entries(keyIdMap)) {
+                if (ids.map(i => i.toLowerCase()).includes(normalizedId)) {
+                    const aliasBindings = keyBindingsMap[alias.toLowerCase()] || [];
+                    if (aliasBindings.length > 0) {
+                        return [...new Set([...bindings, ...aliasBindings])];
+                    }
+                }
+                if (alias.toLowerCase() === normalizedId) {
+                    const allBindings = [...bindings];
+                    ids.forEach(id => {
+                        allBindings.push(...(keyBindingsMap[id.toLowerCase()] || []));
+                    });
+                    if (allBindings.length > bindings.length) {
+                        return [...new Set(allBindings)];
+                    }
+                }
+            }
+
+            return bindings;
+        }
+
+        // Tooltip
+        function showTooltip(event, keyId, bindings) {
+            const tooltip = document.getElementById('tooltip');
+
+            // Group bindings by category
+            const groupedBindings = {};
+            bindings.forEach(b => {
+                if (!groupedBindings[b.category]) {
+                    groupedBindings[b.category] = [];
+                }
+                groupedBindings[b.category].push(b);
+            });
+
+            let html = `<div class="tooltip-title">${keyId.toUpperCase()}</div>`;
+
+            // Render each category group
+            for (const [catId, catBindings] of Object.entries(groupedBindings)) {
+                const cat = categoriesWithColors[catId];
+                if (!cat) continue;
+                html += `<div class="tooltip-category">`;
+                html += `<div class="tooltip-category-header" style="background: ${cat.color}; color: var(--bg);">${cat.name}</div>`;
+
+                catBindings.slice(0, 10).forEach(b => {
+                    html += `
+                        <div class="tooltip-item">
+                            <span class="tooltip-combo" style="background: ${cat.color}20; color: ${cat.color}; border: 1px solid ${cat.color}40;">${escapeHtml(b.combo)}</span>
+                            <span class="tooltip-action">${escapeHtml(b.action)}</span>
+                        </div>
+                    `;
+                });
+
+                if (catBindings.length > 10) {
+                    html += `<div class="tooltip-item" style="opacity: 0.6;">... and ${catBindings.length - 10} more</div>`;
+                }
+
+                html += `</div>`;
+            }
+
+            tooltip.innerHTML = html;
+            tooltip.classList.add('visible');
+
+            // Position tooltip
+            const rect = event.target.getBoundingClientRect();
+            let left = rect.left + window.scrollX;
+            let top = rect.bottom + window.scrollY + 10;
+
+            // Keep in viewport
+            if (left + 400 > window.innerWidth) {
+                left = window.innerWidth - 410;
+            }
+
+            tooltip.style.left = `${left}px`;
+            tooltip.style.top = `${top}px`;
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('visible');
+        }
+
+        // Highlight cards when hovering key
+        function highlightCards(bindings) {
+            bindings.forEach(b => {
+                const card = document.querySelector(`[data-combo="${CSS.escape(b.combo)}"]`);
+                if (card) card.classList.add('highlighted');
+            });
+        }
+
+        function unhighlightCards() {
+            document.querySelectorAll('.binding-card.highlighted').forEach(el => {
+                el.classList.remove('highlighted');
+            });
+        }
+
+        // Highlight keys when hovering card
+        function highlightKeys(binding) {
+            binding.keys.forEach(key => {
+                const normalizedKey = key.toLowerCase();
+                document.querySelectorAll('.key').forEach(keyEl => {
+                    const keyId = keyEl.dataset.keyId.toLowerCase();
+                    if (keyId === normalizedKey ||
+                        (keyIdMap[key] && keyIdMap[key].map(k => k.toLowerCase()).includes(keyId))) {
+                        keyEl.classList.add('highlighted');
+                    }
+                });
+            });
+        }
+
+        function unhighlightKeys() {
+            document.querySelectorAll('.key.highlighted').forEach(el => {
+                el.classList.remove('highlighted');
+            });
+        }
+
+        // Render keybindings list
+        function renderKeybindingsList() {
+            const container = document.getElementById('keybindings-container');
+            container.innerHTML = '';
+
+            if (parsedKeybindings.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.6;">No keybindings data found.</p>';
+                return;
+            }
+
+            const groupedByCategory = {};
+            parsedKeybindings.forEach(b => {
+                if (!groupedByCategory[b.category]) {
+                    groupedByCategory[b.category] = [];
+                }
+                groupedByCategory[b.category].push(b);
+            });
+
+            for (const [catId, catInfo] of Object.entries(categoriesWithColors)) {
+                const bindings = groupedByCategory[catId] || [];
+                if (bindings.length === 0) continue;
+
+                const section = document.createElement('div');
+                section.className = 'category-section';
+                section.dataset.category = catId;
+
+                section.innerHTML = `
+                    <div class="category-header" style="border-color: ${catInfo.color}">
+                        <div class="category-icon" style="background: ${catInfo.color}"></div>
+                        <span class="category-title">${catInfo.name}</span>
+                        <span class="category-count">${bindings.length}</span>
+                    </div>
+                `;
+
+                bindings.forEach(b => {
+                    const card = document.createElement('div');
+                    card.className = 'binding-card';
+                    card.dataset.combo = b.combo;
+                    card.style.borderColor = catInfo.color;
+
+                    let comboHtml = escapeHtml(b.combo);
+                    if (b.isChord) {
+                        comboHtml += `<span class="chord-badge">chord</span>`;
+                    }
+
+                    card.innerHTML = `
+                        <span class="binding-combo">${comboHtml}</span>
+                        <span class="binding-action">${escapeHtml(b.action)}</span>
+                    `;
+
+                    card.addEventListener('mouseenter', () => highlightKeys(b));
+                    card.addEventListener('mouseleave', unhighlightKeys);
+
+                    section.appendChild(card);
+                });
+
+                container.appendChild(section);
+            }
+        }
+
+        // Render legend
+        function renderLegend() {
+            const legend = document.getElementById('legend');
+            legend.innerHTML = '';
+
+            for (const [catId, catInfo] of Object.entries(categoriesWithColors)) {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.dataset.category = catId;
+                item.innerHTML = `
+                    <div class="legend-chip" style="background: ${catInfo.color}"></div>
+                    <span>${catInfo.name}</span>
+                `;
+
+                item.addEventListener('click', () => toggleCategory(catId));
+                legend.appendChild(item);
+            }
+        }
+
+        // Filter by category
+        function toggleCategory(catId) {
+            const legendItems = document.querySelectorAll('.legend-item');
+
+            if (activeCategory === catId) {
+                // Deactivate
+                activeCategory = null;
+                legendItems.forEach(item => item.classList.remove('active'));
+            } else {
+                // Activate new category
+                activeCategory = catId;
+                legendItems.forEach(item => {
+                    item.classList.toggle('active', item.dataset.category === catId);
+                });
+            }
+
+            applyFilters();
+        }
+
+        // Search
+        document.getElementById('search').addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase();
+            applyFilters();
+        });
+
+        function applyFilters() {
+            const sections = document.querySelectorAll('.category-section');
+            const cards = document.querySelectorAll('.binding-card');
+
+            // Filter sections by category
+            sections.forEach(section => {
+                if (activeCategory && section.dataset.category !== activeCategory) {
+                    section.classList.add('hidden');
+                } else {
+                    section.classList.remove('hidden');
+                }
+            });
+
+            // Filter cards by search
+            cards.forEach(card => {
+                const combo = card.dataset.combo.toLowerCase();
+                const action = card.querySelector('.binding-action').textContent.toLowerCase();
+
+                if (searchQuery && !combo.includes(searchQuery) && !action.includes(searchQuery)) {
+                    card.classList.add('hidden');
+                } else {
+                    card.classList.remove('hidden');
+                }
+            });
+
+            // Hide empty sections
+            sections.forEach(section => {
+                const visibleCards = section.querySelectorAll('.binding-card:not(.hidden)');
+                if (visibleCards.length === 0) {
+                    section.classList.add('hidden');
+                }
+            });
+
+            // Update keyboard highlights
+            updateKeyboardHighlights();
+        }
+
+        function updateKeyboardHighlights() {
+            // Reset all keys
+            document.querySelectorAll('.key').forEach(key => {
+                key.style.opacity = activeCategory || searchQuery ? '0.4' : '1';
+            });
+
+            // Highlight matching keys
+            parsedKeybindings.forEach(b => {
+                const matchesCategory = !activeCategory || b.category === activeCategory;
+                const matchesSearch = !searchQuery ||
+                    b.combo.toLowerCase().includes(searchQuery) ||
+                    b.action.toLowerCase().includes(searchQuery);
+
+                if (matchesCategory && matchesSearch) {
+                    b.keys.forEach(key => {
+                        const normalizedKey = key.toLowerCase();
+                        document.querySelectorAll('.key').forEach(keyEl => {
+                            const keyId = keyEl.dataset.keyId.toLowerCase();
+                            if (keyId === normalizedKey ||
+                                (keyIdMap[key] && keyIdMap[key].map(k => k.toLowerCase()).includes(keyId))) {
+                                keyEl.style.opacity = '1';
+                            }
+                        });
+                    });
+                }
+            });
+        }
+
+        function resetFilters() {
+            activeCategory = null;
+            searchQuery = '';
+            document.getElementById('search').value = '';
+            document.querySelectorAll('.legend-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.category-section').forEach(s => s.classList.remove('hidden'));
+            document.querySelectorAll('.binding-card').forEach(c => c.classList.remove('hidden'));
+            document.querySelectorAll('.key').forEach(k => k.style.opacity = '1');
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            renderKeyboard();
+            renderKeybindingsList();
+            renderLegend();
+
+            console.log(`Total keybindings: ${parsedKeybindings.length}`);
+        });
+    </script>
+</body>
+</html>

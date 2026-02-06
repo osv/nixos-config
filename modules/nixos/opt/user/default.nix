@@ -50,6 +50,7 @@ in {
       fd
       ripgrep
       tlrc # tldr - simplified pages with practical examples
+      nerv.my-generate-zsh-keybindings
     ];
     environment.variables = {
       BAT_THEME = "base16"; # The theme is defined by the terminal's colors. URXVT has a setup for multiple themes, and this works well.
@@ -172,6 +173,17 @@ in {
                 local time=$1; shift
                 sched "$time" "notify-send --urgency=critical 'Reminder' '$@'; ${pkgs.ding}";
               }; compdef r=sched
+
+              # Export keybindings to HTML (Alt+Shift+F1)
+              my-export-zsh-keybindings() {
+                local tmpfile="''${XDG_RUNTIME_DIR:-/tmp}/zsh-bindkey-export"
+                bindkey -L > "$tmpfile"
+                BINDKEY_FILE="$tmpfile" my-generate-zsh-keybindings &>/dev/null &
+                disown
+                zle reset-prompt
+              }
+              zle -N my-export-zsh-keybindings
+              bindkey '\e[1;4P' my-export-zsh-keybindings
 
               # colorize some commands, like ping, mount, uptime,  df
               source ${pkgs.grc}/etc/grc.zsh

@@ -499,7 +499,7 @@ in {
 1. Make changes to relevant module files.
    **CRITICAL**: Update `./MODULES.md` on adding new modules or module rename.
    **CRITICAL**: Always describe what this module is used for. For example: "dolphin (KDE file manager)" or "xkb (keyboard layout configuration)"".
-   **CRITICAL:** Always update `modules/nixos/opt/user/README.zsh.md` after adding new packages to Zsh or changing keybindings. Keep this file up to date.
+   **CRITICAL:** Always update `modules/nixos/opt/user/README.zsh.md` after adding new packages to Zsh or changing keybindings. When adding or modifying Zsh keybindings, also update `widget_info` in `packages/my-generate-zsh-keybindings/my-generate-zsh-keybindings.zsh` so the HTML export includes correct category and description. Keep these files up to date.
 2. **CRITICAL**: you must `git add` created files. Files must be in git, otherwise nix flake cannot build.
 2. Test build: `nixos-rebuild build --flake .#<hostname>` (replace `<hostname>` with actual hostname, e.g. `krypton`, `xenon`)
 3. Apply changes only if user request:
@@ -585,6 +585,7 @@ const keybindings = [
 **Existing generators (examples):**
 - XMonad: `modules/nixos/opt/desktop/xmonad/.xmonad/lib/My/KeybindingsExport.hs`
 - Emacs: `modules/nixos/opt/apps/emacs/config_doom/keybindings-export.el`
+- Zsh: `packages/my-generate-zsh-keybindings/my-generate-zsh-keybindings.zsh`
 
 ## Notes
 
