@@ -114,6 +114,16 @@ Keybindings come from `bindkey -L` output at runtime, but the generator needs wi
 
 Run `make update-doc` to copy generated HTML from `~/.cache/nixos-config/keybinding/` to `docs/keybinding/`.
 
+## Testing
+
+The Zsh keybinding generator includes a built-in test suite for `convert_key` (escape sequence → combo conversion). Run it with:
+
+```bash
+make test-zsh-keybindings
+```
+
+This executes `zsh packages/my-generate-zsh-keybindings/my-generate-zsh-keybindings.zsh --test` directly from the repo — no Nix build required. The `--test` flag runs 55 assertions covering `^<letter>`, `^X^<letter>` chords, `^X<char>`, Alt combos, SS3/CSI sequences, and modified keys, then exits before the main generator logic.
+
 ## Adding a New App
 
 1. **Create a generator** that reads keybindings from the app and outputs JS in the shared data format above
