@@ -50,6 +50,7 @@ in {
       fd
       ripgrep
       tlrc # tldr - simplified pages with practical examples
+      eza # exa replacement
       nerv.my-generate-zsh-keybindings
     ];
     environment.variables = {
@@ -103,6 +104,13 @@ in {
 
         programs = {
           fzf = on // {
+            defaultCommand = "fd --type f --hidden --follow --exclude .git";
+            fileWidgetCommand = "fd --type f --hidden --follow --exclude .git"; # C-t
+            changeDirWidgetCommand = "fd --type d --hidden --exclude .git"; # M-c
+            changeDirWidgetOptions = [ # M-c
+              "--preview '${pkgs.eza}/bin/eza --oneline --icons --color=always --group-directories-last --git --long {}'"
+            ];
+            fileWidgetOptions = [ "--preview '${pkgs.bat}/bin/bat --color=always --style=numbers --line-range :300 {}'" ]; # C-t
             defaultOptions = [ "--color=16" ]; # I want to use my term theme
           };
           starship = on;
