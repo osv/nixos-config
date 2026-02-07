@@ -16,15 +16,6 @@ OUTPUT_FILE="$OUTPUT_DIR/index.html"
 SILENT=false
 [[ "${1:-}" == "--silent" ]] && SILENT=true
 
-# --- Read bindkey output ---
-BINDKEY_FILE="${BINDKEY_FILE:-${XDG_RUNTIME_DIR:-/tmp}/zsh-bindkey-export}"
-
-if [[ ! -f "$BINDKEY_FILE" ]]; then
-  echo "Error: bindkey export file not found: $BINDKEY_FILE" >&2
-  echo "Run: bindkey -L > $BINDKEY_FILE" >&2
-  exit 1
-fi
-
 # --- Widget descriptions and categories ---
 # Format: widget_name -> "category|description"
 typeset -A widget_info
@@ -122,8 +113,15 @@ widget_info[vi-insert]="editing|Enter insert mode (vi i)"
 widget_info[vi-insert-bol]="editing|Insert at beginning of line (vi I)"
 widget_info[vi-repeat-change]="editing|Repeat last change (vi .)"
 widget_info[vi-oper-swap-case]="editing|Swap case of selection"
+widget_info[insert-last-word]="editing|Insert last word from previous command"
+widget_info[quote-line]="editing|Quote entire line"
+widget_info[quote-region]="editing|Quote region between mark and cursor"
 widget_info[copy-region-as-kill]="editing|Copy region to kill ring"
 widget_info[copy-prev-word]="editing|Copy previous word"
+widget_info[autopair-insert]="editing|Auto-insert matching pair"
+widget_info[autopair-close]="editing|Auto-close matching pair"
+widget_info[autopair-delete]="editing|Delete character backward (autopair)"
+widget_info[autopair-delete-word]="editing|Delete word backward (autopair)"
 widget_info[set-mark-command]="editing|Set mark at cursor"
 widget_info[exchange-point-and-mark]="editing|Swap cursor and mark"
 widget_info[kill-region]="editing|Kill region between mark and cursor"
@@ -151,12 +149,20 @@ widget_info[_history-complete-older]="completion|Complete from older history"
 widget_info[_most_recent_file]="completion|Complete most recent file"
 widget_info[_next_tags]="completion|Next completion tag group"
 widget_info[_read_comp]="completion|Read completion specification"
+widget_info[_correct_filename]="completion|Correct filename under cursor"
+widget_info[_expand_word]="completion|Expand word under cursor"
+widget_info[_list_expansions]="completion|List possible expansions"
+widget_info[_complete_debug]="completion|Debug completion system"
+widget_info[_complete_tag]="completion|Complete tag"
+widget_info[_bash_complete-word]="completion|Bash-style word completion"
+widget_info[_bash_list-choices]="completion|Bash-style list choices"
 
 # Plugins (fzf, fzf-marks, custom widgets)
 widget_info[fzf-file-widget]="plugins|FZF: Find files (Ctrl+T)"
 widget_info[fzf-cd-widget]="plugins|FZF: Change directory (Alt+C)"
 widget_info[fzf-history-widget]="plugins|FZF: Search history (Ctrl+R)"
 widget_info[fzm]="plugins|FZF-marks: Jump to bookmark"
+widget_info[fzf-completion]="plugins|FZF: Trigger completion (Tab)"
 widget_info[my-export-zsh-keybindings]="plugins|Export keybindings to HTML"
 
 # Misc
@@ -184,6 +190,9 @@ widget_info[select-a-blank-word]="misc|Select a WORD (text object)"
 widget_info[select-in-blank-word]="misc|Select in WORD (text object)"
 widget_info[select-a-shell-word]="misc|Select a shell word (text object)"
 widget_info[select-in-shell-word]="misc|Select in shell word (text object)"
+widget_info[accept-and-hold]="misc|Accept line and keep in edit buffer"
+widget_info[what-cursor-position]="misc|Show cursor position information"
+widget_info[bracketed-paste]="misc|Bracketed paste mode"
 widget_info[send-break]="misc|Abort current command"
 widget_info[pound-insert]="misc|Comment/uncomment line"
 widget_info[argument-base]="misc|Set argument base"
@@ -203,6 +212,7 @@ ignore_widgets[beep]=1
 ignore_widgets[vi-digit-or-beginning-of-line]=1
 ignore_widgets[self-insert-unmeta]=1
 ignore_widgets[magic-space]=1
+ignore_widgets[bracketed-paste]=1
 
 # --- Escape sequence conversion ---
 convert_key() {
@@ -219,16 +229,23 @@ convert_key() {
   [[ "$seq" == '^I' ]] && echo 'Tab' && return
   [[ "$seq" == '^J' ]] && echo 'Enter' && return
 
-  # ^X<char> → chord C-x <char>
+  # ^X^<letter> → chord C-x C-<letter>
+  if [[ "$seq" =~ '^\^X\^([A-Z])$' ]]; then
+    local ch="${match[1]}"
+    ch="${ch:l}"
+    echo "C-x C-${ch}"
+    return
+  fi
+
+  # ^X<char> → chord C-x <char> (preserve case for Shift distinction)
   if [[ "$seq" =~ '^\^X(.)$' ]]; then
     local ch="${match[1]}"
-    ch="${ch:l}" # lowercase
     echo "C-x ${ch}"
     return
   fi
 
   # ^<letter> → C-<letter>
-  if [[ "$seq" =~ '^\^([A-Z_\\@\[\]])$' ]]; then
+  if [[ "$seq" =~ '^\^([]A-Z_\\@[])$' ]]; then
     local letter="${match[1]}"
     letter="${letter:l}" # lowercase
     echo "C-${letter}"
@@ -251,14 +268,13 @@ convert_key() {
     return
   fi
 
-  # SS3 function keys: ^[OP=F1 ^[OQ=F2 ^[OR=F3 ^[OS=F4
-  if [[ "$seq" =~ '^\^\[O([PQRS])$' ]]; then
+  # SS3 keys: ^[OP=F1..^[OS=F4, ^[OA=Up..^[OD=Left, ^[OH=Home, ^[OF=End
+  if [[ "$seq" =~ '^\^\[O([PQRSABCDHF])$' ]]; then
     local fkey
     case "${match[1]}" in
-      P) fkey="F1" ;;
-      Q) fkey="F2" ;;
-      R) fkey="F3" ;;
-      S) fkey="F4" ;;
+      P) fkey="F1" ;; Q) fkey="F2" ;; R) fkey="F3" ;; S) fkey="F4" ;;
+      A) fkey="Up" ;; B) fkey="Down" ;; C) fkey="Right" ;; D) fkey="Left" ;;
+      H) fkey="Home" ;; F) fkey="End" ;;
     esac
     echo "<${fkey}>"
     return
@@ -366,6 +382,12 @@ convert_key() {
   # Shift-Tab: ^[[Z
   [[ "$seq" == '^[[Z' ]] && echo 'S-<Tab>' && return
 
+  # ^[^? → M-<Backspace> (Alt+Backspace)
+  [[ "$seq" == '^[^?' ]] && echo 'M-<Backspace>' && return
+
+  # ^[^_ → C-M-_ (Ctrl+Alt+Underscore)
+  [[ "$seq" == '^[^_' ]] && echo 'C-M-_' && return
+
   # ^[<special> sequences like ^[. ^[, etc
   if [[ "$seq" =~ '^\^\[(.+)$' ]]; then
     local rest="${match[1]}"
@@ -392,8 +414,125 @@ decode_modifier() {
   esac
 }
 
+# --- Test mode ---
+if [[ "${1:-}" == "--test" ]]; then
+    local fail=0 pass=0 total=0
+
+    assert_convert() {
+        total=$((total + 1))
+        local input="$1" expected="$2"
+        local actual
+        actual=$(convert_key "$input")
+        if [[ "$actual" == "$expected" ]]; then
+            pass=$((pass + 1))
+        else
+            fail=$((fail + 1))
+            echo "FAIL: convert_key '$input' = '$actual' (expected '$expected')"
+        fi
+    }
+
+    # ^<letter> → C-<letter>
+    assert_convert '^A' 'C-a'
+    assert_convert '^Z' 'C-z'
+    assert_convert '^@' 'C-@'
+    assert_convert '^_' 'C-_'
+    assert_convert '^\' 'C-\'
+
+    # Special single chars
+    assert_convert '^?' '<Backspace>'
+    assert_convert '^[' 'Escape'
+    assert_convert '^M' 'Enter'
+    assert_convert '^I' 'Tab'
+    assert_convert '^J' 'Enter'
+
+    # ^X^<letter> chords (MUST be before ^X<char> test)
+    assert_convert '^X^B' 'C-x C-b'
+    assert_convert '^X^F' 'C-x C-f'
+    assert_convert '^X^X' 'C-x C-x'
+
+    # ^X<char> chords (preserve case!)
+    assert_convert '^Xc' 'C-x c'
+    assert_convert '^XC' 'C-x C'
+    assert_convert '^X*' 'C-x *'
+    assert_convert '^X/' 'C-x /'
+
+    # Alt (^[<letter>)
+    assert_convert '^[a' 'M-a'
+    assert_convert '^[b' 'M-b'
+    assert_convert '^[A' 'M-a'
+
+    # Ctrl+Alt (^[^<letter>)
+    assert_convert '^[^D' 'C-M-d'
+    assert_convert '^[^G' 'C-M-g'
+
+    # Special Alt combos
+    assert_convert '^[^?' 'M-<Backspace>'
+    assert_convert '^[^_' 'C-M-_'
+    assert_convert '^[|' 'M-|'
+
+    # SS3 function keys
+    assert_convert '^[OP' '<F1>'
+    assert_convert '^[OQ' '<F2>'
+    assert_convert '^[OR' '<F3>'
+    assert_convert '^[OS' '<F4>'
+
+    # SS3 arrows/home/end (now handled properly)
+    assert_convert '^[OA' '<Up>'
+    assert_convert '^[OB' '<Down>'
+    assert_convert '^[OC' '<Right>'
+    assert_convert '^[OD' '<Left>'
+    assert_convert '^[OH' '<Home>'
+    assert_convert '^[OF' '<End>'
+
+    # CSI arrows
+    assert_convert '^[[A' '<Up>'
+    assert_convert '^[[B' '<Down>'
+    assert_convert '^[[C' '<Right>'
+    assert_convert '^[[D' '<Left>'
+    assert_convert '^[[H' '<Home>'
+    assert_convert '^[[F' '<End>'
+
+    # Modified arrows
+    assert_convert '^[[1;5C' 'C-<Right>'
+    assert_convert '^[[1;5D' 'C-<Left>'
+    assert_convert '^[[1;3A' 'M-<Up>'
+
+    # Modified function keys (CSI)
+    assert_convert '^[[1;4P' 'S-M-<F1>'
+    assert_convert '^[[1;5P' 'C-<F1>'
+
+    # CSI special keys
+    assert_convert '^[[2~' '<Insert>'
+    assert_convert '^[[3~' '<Delete>'
+    assert_convert '^[[5~' '<PageUp>'
+    assert_convert '^[[6~' '<PageDown>'
+    assert_convert '^[[15~' '<F5>'
+    assert_convert '^[[24~' '<F12>'
+
+    # Shift-Tab
+    assert_convert '^[[Z' 'S-<Tab>'
+
+    # Alt + punctuation fallback
+    assert_convert '^[ ' 'M- '
+    assert_convert '^[!' 'M-!'
+
+    echo ""
+    echo "Results: $pass passed, $fail failed (of $total)"
+    [[ $fail -eq 0 ]] && echo "ALL TESTS PASSED" || echo "SOME TESTS FAILED"
+    exit $fail
+fi
+
+# --- Read bindkey output ---
+BINDKEY_FILE="${BINDKEY_FILE:-${XDG_RUNTIME_DIR:-/tmp}/zsh-bindkey-export}"
+
+if [[ ! -f "$BINDKEY_FILE" ]]; then
+  echo "Error: bindkey export file not found: $BINDKEY_FILE" >&2
+  echo "Run: bindkey -L > $BINDKEY_FILE" >&2
+  exit 1
+fi
+
 # --- Parse bindkey output ---
-typeset -a kb_entries  # array of "combo|category|description"
+typeset -a kb_entries  # array of "combo\tcategory\tdescription"
 
 while IFS= read -r line; do
   # Parse: bindkey "SEQUENCE" WIDGET
@@ -406,6 +545,9 @@ while IFS= read -r line; do
 
   # Skip ignored widgets
   (( ${+ignore_widgets[$widget]} )) && continue
+
+  # Skip SS3 arrow/home/end (duplicates of CSI versions)
+  [[ "$raw_seq" =~ '^\^\[O[ABCDHF]$' ]] && continue
 
   # Look up widget info, fallback to misc + widget name
   local category description
@@ -425,7 +567,12 @@ while IFS= read -r line; do
   # Skip empty or raw-looking combos
   [[ -z "$combo" ]] && continue
 
-  kb_entries+=("${combo}|${category}|${description}")
+  # Skip autopair widgets bound to single printable characters (noise)
+  if [[ "$widget" =~ '^autopair-' && ${#raw_seq} == 1 ]]; then
+    continue
+  fi
+
+  kb_entries+=("${combo}"$'\t'"${category}"$'\t'"${description}")
 done < "$BINDKEY_FILE"
 
 # --- Deduplicate: keep last binding for each combo ---
@@ -433,14 +580,14 @@ typeset -A seen_combos
 typeset -a deduped_entries
 
 for entry in "${kb_entries[@]}"; do
-  local combo="${entry%%|*}"
+  local combo="${entry%%$'\t'*}"
   seen_combos[$combo]="$entry"
 done
 
 # Preserve order by iterating kb_entries, but only take last seen
 typeset -A emitted
 for entry in "${kb_entries[@]}"; do
-  local combo="${entry%%|*}"
+  local combo="${entry%%$'\t'*}"
   local canonical="${seen_combos[$combo]}"
   if (( ! ${+emitted[$combo]} )); then
     deduped_entries+=("$canonical")
@@ -471,10 +618,10 @@ const keybindings = [
 JSHEAD
 
   for entry in "${deduped_entries[@]}"; do
-    local combo="${entry%%|*}"
-    local rest="${entry#*|}"
-    local category="${rest%%|*}"
-    local description="${rest#*|}"
+    local combo="${entry%%$'\t'*}"
+    local rest="${entry#*$'\t'}"
+    local category="${rest%%$'\t'*}"
+    local description="${rest#*$'\t'}"
 
     # Escape single quotes in description
     description="${description//\'/\\\'}"
