@@ -44,6 +44,42 @@ let
         directory = "${homeDir}/${dir.directory}";
       });
 
+  # Extract directory path from string or attrset
+  dirPath = d: if (isString d) then d else d.directory;
+
+  # All configured persist paths as absolute /persist/... paths
+  allKnownPaths = concatMap (kind:
+    let
+      k = cfg.${kind};
+      prefix = "${cfg.persistRootDir}/${kind}";
+    in
+      (map (d: "${prefix}${dirPath d}") k.directories)
+      ++ (map (d: "${prefix}${homeDir}/${dirPath d}") k.homeDirectories)
+      ++ (map (f: "${prefix}${f}") k.files)
+      ++ (map (f: "${prefix}${homeDir}/${f}") k.homeFiles)
+  ) persistsKinds;
+
+  # All parent directory prefixes of known paths (for tree traversal)
+  allParentPrefixes = lib.unique (concatMap (p:
+    let
+      parts = filter (x: x != "") (splitString "/" p);
+      indices = lib.range 1 (length parts - 1);
+    in
+      map (i: "/" + concatStringsSep "/" (lib.take i parts)) indices
+  ) allKnownPaths);
+
+  knownPathsFile = pkgs.writeText "persist-known-paths"
+    (concatStringsSep "\n" allKnownPaths);
+
+  parentPrefixesFile = pkgs.writeText "persist-parent-prefixes"
+    (concatStringsSep "\n" allParentPrefixes);
+
+  my-show-dead-but-persisted = pkgs.writeShellScriptBin "my-show-dead-but-persisted"
+    (builtins.replaceStrings
+      [ "@KNOWN_PATHS_FILE@" "@PARENT_PREFIXES_FILE@" "@PERSIST_ROOT@" ]
+      [ "${knownPathsFile}" "${parentPrefixesFile}" cfg.persistRootDir ]
+      (builtins.readFile ./my-show-dead-but-persisted.bash));
+
   my-show-not-persisted-files =
     pkgs.writeShellScriptBin "my-show-not-persisted-files" ''
       ${lib.getExe pkgs.fd} \
@@ -121,7 +157,7 @@ in {
   ];
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [ my-show-not-persisted-files ];
+    environment.systemPackages = [ my-show-not-persisted-files my-show-dead-but-persisted ];
 
     environment.persistence = (builtins.listToAttrs (map (p: {
       name = "${cfg.persistRootDir}/${p}";
