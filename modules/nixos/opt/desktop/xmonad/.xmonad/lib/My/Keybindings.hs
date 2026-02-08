@@ -39,7 +39,7 @@ import qualified XMonad.StackSet as W
 import My.Theme
 import My.Grid
 import My.ScratchPads
-import My.KeybindingTypes (renderKeyName, parseKeyNames, isChord, KeybindingCategory(..), Keybinding(..), KeybindingCategoryDef(..), KeybindingDef(..), category, bind)
+import My.KeybindingTypes (KeybindingCategory(..), Keybinding(..), KeybindingCategoryDef(..), KeybindingDef(..), category, bind)
 
 myKeys :: XConfig l -> XConfig l
 myKeys = addDescrKeys' ((mod4Mask, xK_F1), showKeybindings) allKeys
@@ -237,10 +237,7 @@ allKeysStructured = zipWith assignColor [0..] $ map convertCategory myKeybinding
 
     convertBinding b = Keybinding
       { kbCombo = kdCombo b
-      , kbKeys = parseKeyNames (kdCombo b)
       , kbAction = kdDesc b
-      , kbIsChord = isChord (kdCombo b)
-      , kbCatId = Nothing  -- Will be filled during export
       }
 
     assignColor idx cat = cat { kcBindings = map (assignBindingColor $ kcId cat) (kcBindings cat) }
