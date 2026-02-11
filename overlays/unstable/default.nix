@@ -18,7 +18,8 @@ final: prev: {
     viber
     zoom-us
     nerd-fonts
-    nordic;
+    nordic
+    go-grip;
     
   tmuxPlugins = prev.tmuxPlugins // {
     inherit (channels.unstable.tmuxPlugins) vim-tmux-navigator;
