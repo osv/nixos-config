@@ -22,30 +22,34 @@ let
   inherit (builtins) concatMap;
   inherit (lib) mkIf;
 
-  inherit (lib.types) listOf path str anything;
+  inherit (lib.types) listOf path str coercedTo submodule;
+
+  dirType = submodule {
+    options = {
+      directory = mkOption { type = str; description = "Directory path."; };
+      mode = mkOption { type = str; default = "0755"; description = "Directory permissions."; };
+      user = mkOption { type = str; default = "root"; description = "Directory owner."; };
+      group = mkOption { type = str; default = "root"; description = "Directory group."; };
+    };
+  };
+
+  dirListType = listOf (coercedTo str (d: { directory = d; }) dirType);
 
   commonOptions = {
-    directories = mkOpt' (listOf anything) [ ];
+    directories = mkOpt' dirListType [ ];
     files = mkOpt' (listOf str) [ ];
-    homeDirectories = mkOpt' (listOf anything) [ ];
+    homeDirectories = mkOpt' dirListType [ ];
     homeFiles = mkOpt' (listOf str) [ ];
   };
 
-  homeDirectoryToDirectory = dir:
-    if (isString dir) then {
-      directory = "${homeDir}/${dir}";
-      user = userName;
-      group = "users";
-    } else
-      ({
-        user = userName;
-        group = "users";
-      } // dir // {
-        directory = "${homeDir}/${dir.directory}";
-      });
+  homeDirectoryToDirectory = dir: dir // {
+    user = if dir.user == "root" then userName else dir.user;
+    group = if dir.group == "root" then "users" else dir.group;
+    directory = "${homeDir}/${dir.directory}";
+  };
 
-  # Extract directory path from string or attrset
-  dirPath = d: if (isString d) then d else d.directory;
+  # Extract directory path (all entries are attrsets after coercion)
+  dirPath = d: d.directory;
 
   # All configured persist paths as absolute /persist/... paths
   allKnownPaths = concatMap (kind:
@@ -188,8 +192,8 @@ in {
           (cfg.cache.files ++ absoluteHomeFiles cfg.cache.homeFiles))}
 
         ${builtins.concatStringsSep "\n"
-        (map (x: "rm -rf ${lib.escapeShellArg x}") cfg.cache.directories
-          ++ absoluteHomeFiles cfg.cache.homeDirectories)}
+        (map (x: "rm -rf ${lib.escapeShellArg (dirPath x)}") cfg.cache.directories
+          ++ map (x: "rm -rf ${lib.escapeShellArg "${homeDir}/${dirPath x}"}") cfg.cache.homeDirectories)}
       '';
       startAt = cfg.cache.clean.dates;
     };
