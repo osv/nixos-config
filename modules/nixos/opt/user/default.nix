@@ -17,6 +17,11 @@ let
 
     passthru = { fileName = defaultIconFileName; };
   };
+  fzfPreviewDeps = lib.makeBinPath (with pkgs; [ file eza imagemagick chafa bat coreutils ncurses ]);
+  fzfPreview = pkgs.writeShellScript "fzf-preview" ''
+    export PATH="${fzfPreviewDeps}:$PATH"
+    source ${./fzf-preview.sh}
+  '';
   propagatedIcon = pkgs.runCommand "propagated-icon" {
     passthru = { fileName = cfg.icon.fileName; };
   } ''
@@ -110,8 +115,23 @@ in {
             changeDirWidgetOptions = [ # M-c
               "--preview '${pkgs.eza}/bin/eza --oneline --icons --color=always --group-directories-last --git --long {}'"
             ];
-            fileWidgetOptions = [ "--preview '${pkgs.bat}/bin/bat --color=always --style=numbers --line-range :300 {}'" ]; # C-t
-            defaultOptions = [ "--color=16" ]; # I want to use my term theme
+            fileWidgetOptions = [ # C-t
+              "--height=80%"
+              "--multi"
+              "--preview '${fzfPreview} {}'"
+            ];
+            defaultOptions = [ # I want to use my term theme
+              "--color=16"
+              "--inline-info"
+              "--bind 'ctrl-p:change-preview-window(hidden|down)'"
+              "--bind ctrl-r:first"
+              "--bind alt-up:first"
+              "--bind alt-down:last"
+              "--bind alt-k:preview-up,alt-p:preview-up"
+              "--bind alt-j:preview-down,alt-n:preview-down"
+              "--bind alt-K:preview-half-page-up,alt-P:preview-half-page-up"
+              "--bind alt-J:preview-half-page-down,alt-N:preview-half-page-down"
+            ];
           };
           starship = on;
           carapace = on;        # autocomplete
