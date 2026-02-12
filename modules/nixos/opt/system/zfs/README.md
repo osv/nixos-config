@@ -27,3 +27,22 @@ To make backup run tool:
 my-sync-to-externaldisk --no-sync-snap --delete-target-snapshots
 ```
 
+# Snapshot example
+
+Create snapshot before testing:
+
+    sudo zfs snapshot tank/safe/db/mysql@before-test
+
+Verify the snapshot was created:
+
+    zfs list -t snapshot tank/safe/db/mysql
+
+After testing — revert changes:
+
+    # stop MySQL first
+    sudo zfs rollback tank/safe/db/mysql@before-test
+    # start mysql
+
+Delete snapshot when no longer needed:
+
+    sudo zfs destroy tank/safe/db/mysql@before-test
