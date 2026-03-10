@@ -508,6 +508,9 @@ in {
 
 **Note**: Use `hostname` command to get current hostname. Always use actual hostname in flake commands.
 
+### Pre-commit Security Check
+Before committing, always run `/check-secrets` to scan added lines for sensitive data (API keys, tokens, passwords, private IPs, etc.). Do NOT commit if concerns are found — report them to the user first.
+
 ### Commit Message Convention
 
 Follow the established commit message style in this repository:

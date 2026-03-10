@@ -36,3 +36,7 @@ Keybindings are auto-generated to `~/.cache/nixos-config/keybinding/`:
 # Helpful tips
 - Switch to new config `nrs` or `nh os switch .` or `nixos-rebuild switch --flake .#xenon`
 
+## TODO
+
+- https://github.com/d12frosted/environment/blob/master/emacs/lisp/init-ide.el combobulate
+- https://github.com/richardgill/nix - nix / claude / disco / scripts
