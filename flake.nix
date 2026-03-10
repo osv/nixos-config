@@ -29,9 +29,6 @@
 
     stevenBlackHosts.url = "github:StevenBlack/hosts";
 
-    # Nice zoom aplication (waiting untill upstream will include flake)
-    boomer.url = "github:nilp0inter/boomer/971a082";
-
     # Generate System Images
     nixos-generators.url = "github:nix-community/nixos-generators";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";

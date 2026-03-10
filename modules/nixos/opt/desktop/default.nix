@@ -7,7 +7,7 @@ stdModules { inherit config lib pkgs; } [
   [
     "nerv.opt.desktop.addons.boomer"
     "x11 zoom app (Boomer)"
-    (with pkgs; [ boomer ])
+    (with pkgs; [ pkgs.nerv.boomer ])
     {}
     {
       nerv.home.configFile."boomer/config".text = ''
