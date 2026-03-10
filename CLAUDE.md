@@ -42,7 +42,9 @@ nixfmt-classic <file.nix>
 - **Packages**: Custom packages in `packages/`
 
 ### Module Organization
-Modules are organized by function in `modules/nixos/`:
+Modules are at `modules/nixos/opt/<category>/<name>/default.nix` 
+
+Tree structure of `modules/nixos/`:
 - `opt/`: All optional modules (most modules)
   - `apps/`: GUI applications (emacs, firefox, discord, etc.)
   - `cli-apps/`: CLI tools (tmux, wine, etc.)
@@ -506,10 +508,13 @@ in {
    - switch `nixos-rebuild switch --flake .#<hostname>`
    - Check generation diff: `my-nixos-diff`
 
-**Note**: Use `hostname` command to get current hostname. Always use actual hostname in flake commands.
+**Note**: Use `hostname` command to get current hostname.
+Current hostname: !`hostname`
 
-### Pre-commit Security Check
-Before committing, always run `/check-secrets` to scan added lines for sensitive data (API keys, tokens, passwords, private IPs, etc.). Do NOT commit if concerns are found — report them to the user first.
+
+### Commit Workflow
+- **ALWAYS run `/check-secrets` before committing** — this is a CLAUDE.md requirement
+- Flow: stage files → `/check-secrets` → commit
 
 ### Commit Message Convention
 
@@ -595,4 +600,9 @@ const keybindings = [
 - Tests are part of NixOS module system checks and assertions
 - The repository uses Snowfall lib conventions for automatic module discovery
 - Git commits should follow existing patterns in the repository
-- Ensure to use "$$" in nix files when you need to put `$` char in multi line variable text (double quoted by `''` in nix) to prevent interpolation 
+- **Nix String Escaping in `''..''` (indented strings)**:
+  - `$var`, `$@`, `$((..))`, `$(cmd)` — write as-is (Nix only interpolates `${expr}`, not `$var`)
+  - `${bashVar}` — escape as `''${bashVar}` to prevent Nix interpolation
+  - `${nixExpr}` — leave as-is for Nix interpolation
+  - `$$` does NOT escape to `$` in `''..''` strings — it stays literal `$$` (bash PID)
+  - In `"..."` (double-quoted) Nix strings: use `\$` to escape dollar signs
