@@ -8,6 +8,14 @@
 (setq user-full-name "Olexandr Sydorchuk"
       user-mail-address "olexandr.syd@gmail.com")
 
+;; Fix treesit grammar installation in direnv environments with conflicting LD_LIBRARY_PATH
+(advice-add 'treesit--install-language-grammar-1 :around
+            (lambda (orig-fn &rest args)
+              (let ((process-environment
+                     (cl-remove-if (lambda (s) (string-prefix-p "LD_LIBRARY_PATH=" s))
+                                   process-environment)))
+                (apply orig-fn args))))
+
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
 ;; - `doom-font' -- the primary font to use
