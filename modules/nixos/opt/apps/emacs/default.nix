@@ -242,7 +242,7 @@ in
         gnutls # doom! for TLS connectivity
         sqlite # lookup
         wordnet # lookup
-
+        fswatch # vulpea
         ## Keybindings documentation
         pkgs.nerv.my-generate-keybindings-index
 

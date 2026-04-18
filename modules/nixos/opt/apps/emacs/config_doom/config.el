@@ -63,6 +63,7 @@
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
+(setq org-roam-directory "~/org/roam2/")
 
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
@@ -641,54 +642,109 @@ npm i -g sql-formatter-cli"
 
 ;;; ~/.doom.d/config.el
 
-(after! org-roam
-  ;;––– detect “project” files (buffers containing any TODO entry) ––––––––––––––––
-  (defun vulpea-project-p ()
-    "Return non-nil if current buffer has any TODO entry (ignores done)."
-    (seq-find
-     (lambda (type) (eq type 'todo))
-     (org-element-map
-         (org-element-parse-buffer 'headline)
-         'headline
-       (lambda (h) (org-element-property :todo-type h)))))
+;;; ── EasyPG encryption ─────────────────────────────────────────────────────
+(setq epa-file-encrypt-to '("B33D6CC4C3A13CF7"))
+(setq epa-pinentry-mode 'loopback)
 
-  ;;––– update the “project” tag on save/open –––––––––––––––––––––––––––––––––
-  (defun vulpea-project-update-tag ()
-    "Add or remove the PROJECT tag on this buffer, based on `vulpea-project-p`."
-    (when (and buffer-file-name
-               (string-prefix-p (file-truename org-roam-directory)
-                                (file-truename (file-name-directory buffer-file-name)))
-               (not (active-minibuffer-window)))
-      (save-excursion
-        (goto-char (point-min))
-        (let* ((tags     (vulpea-buffer-tags-get))
-               (orig     tags))
-          (if (vulpea-project-p)
-              (cl-pushnew "project" tags :test #'string=)
-            (setq tags (remove "project" tags)))
-          (unless (equal tags orig)
-            (apply #'vulpea-buffer-tags-set tags))))))
+;;; ── org-crypt: encrypt individual headings tagged :crypt: ────────────────
+(use-package! org-crypt
+  :after org
+  :config
+  (org-crypt-use-before-save-magic)
+  (setq org-crypt-key "B33D6CC4C3A13CF7")
+  (setq org-tags-exclude-from-inheritance '("crypt")))
 
-  (add-hook 'find-file-hook   #'vulpea-project-update-tag)
-  (add-hook 'before-save-hook #'vulpea-project-update-tag)
+;; ;;; ── org-roam ─────────────────────────────────────────────────────────────
+;; (after! org-roam
+;;   ;; Support encrypted .org.gpg files in roam
+;;   (setq org-roam-file-extensions '("org" "org.gpg"))
 
-  ;;––– build the agenda list from all files tagged “project” ––––––––––––––––
-  (defun vulpea-project-files ()
-    "Return all org-roam files that have a “project” tag."
-    (seq-uniq
-     (seq-map #'car
-              (org-roam-db-query
-               [:select [nodes:file]
-                :from tags
-                :left-join nodes :on (= tags:node-id nodes:id)
-                :where (like tags:tag (quote "%\"project\"%"))]))))
+;;   ;; Daily notes
+;;   (setq org-roam-dailies-directory "daily/")
+;;   (setq org-roam-dailies-capture-templates
+;;         '(("d" "default" entry "* %?"
+;;            :target (file+head "%<%Y-%m-%d>.org"
+;;                               "#+title: %<%Y-%m-%d>\n#+filetags: :daily:\n"))
+;;           ("t" "task" entry "* TODO %?\n  %U\n  %a"
+;;            :target (file+head "%<%Y-%m-%d>.org"
+;;                               "#+title: %<%Y-%m-%d>\n#+filetags: :daily:\n")
+;;            :empty-lines 1)))
 
-  (defun vulpea-agenda-files-update (&rest _)
-    "Refresh `org-agenda-files' to the list of project files."
-    (setq org-agenda-files (vulpea-project-files)))
+;;   ;; Capture templates
+;;   (setq org-roam-capture-templates
+;;         '(("d" "default" plain "%?"
+;;            :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+;;                               "#+title: ${title}\n#+filetags: \n")
+;;            :unnarrowed t)
+;;           ("t" "task" plain "* TODO %?\n  %U\n  %a"
+;;            :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+;;                               "#+title: ${title}\n#+filetags: :task:\n")
+;;            :unnarrowed t)
+;;           ("s" "secret (encrypted)" plain "%?"
+;;            :target (file+head "encrypted/%<%Y%m%d%H%M%S>-${slug}.org.gpg"
+;;                               "#+title: ${title}\n#+filetags: :secret:\n")
+;;            :unnarrowed t)))
 
-  (advice-add 'org-agenda    :before #'vulpea-agenda-files-update)
-  (advice-add 'org-todo-list :before #'vulpea-agenda-files-update))
+;;   ;; Custom agenda views integrated with org-roam
+;;   (setq org-agenda-custom-commands
+;;         '(("r" "Roam project TODOs" alltodo ""
+;;            ((org-agenda-files (vulpea-project-files))))
+;;           ("d" "Dashboard"
+;;            ((agenda "" ((org-agenda-span 'day)))
+;;             (todo "TODO" ((org-agenda-files (vulpea-project-files))
+;;                           (org-agenda-overriding-header "Roam TODOs")))
+;;             (todo "WAIT" ((org-agenda-files (vulpea-project-files))
+;;                           (org-agenda-overriding-header "Waiting")))
+;;             (todo "STRT" ((org-agenda-files (vulpea-project-files))
+;;                           (org-agenda-overriding-header "In Progress")))))))
+
+;;   ;;––– detect "project" files (buffers containing any TODO entry) ––––––––––
+;;   (defun vulpea-project-p ()
+;;     "Return non-nil if current buffer has any TODO entry (ignores done)."
+;;     (seq-find
+;;      (lambda (type) (eq type 'todo))
+;;      (org-element-map
+;;          (org-element-parse-buffer 'headline)
+;;          'headline
+;;        (lambda (h) (org-element-property :todo-type h)))))
+
+;;   ;;––– update the "project" tag on save/open ──────────────────────────────
+;;   (defun vulpea-project-update-tag ()
+;;     "Add or remove the PROJECT tag on this buffer, based on `vulpea-project-p`."
+;;     (when (and buffer-file-name
+;;                (string-prefix-p (file-truename org-roam-directory)
+;;                                 (file-truename (file-name-directory buffer-file-name)))
+;;                (not (active-minibuffer-window)))
+;;       (save-excursion
+;;         (goto-char (point-min))
+;;         (let* ((tags     (vulpea-buffer-tags-get))
+;;                (orig     tags))
+;;           (if (vulpea-project-p)
+;;               (cl-pushnew "project" tags :test #'string=)
+;;             (setq tags (remove "project" tags)))
+;;           (unless (equal tags orig)
+;;             (apply #'vulpea-buffer-tags-set tags))))))
+
+;;   (add-hook 'find-file-hook   #'vulpea-project-update-tag)
+;;   (add-hook 'before-save-hook #'vulpea-project-update-tag)
+
+;;   ;;––– build the agenda list from all files tagged "project" ──────────────
+;;   (defun vulpea-project-files ()
+;;     "Return all org-roam files that have a \"project\" tag."
+;;     (seq-uniq
+;;      (seq-map #'car
+;;               (org-roam-db-query
+;;                [:select [nodes:file]
+;;                 :from tags
+;;                 :left-join nodes :on (= tags:node-id nodes:id)
+;;                 :where (like tags:tag (quote "%\"project\"%"))]))))
+
+;;   (defun vulpea-agenda-files-update (&rest _)
+;;     "Refresh `org-agenda-files' to the list of project files."
+;;     (setq org-agenda-files (vulpea-project-files)))
+
+;;   (advice-add 'org-agenda    :before #'vulpea-agenda-files-update)
+;;   (advice-add 'org-todo-list :before #'vulpea-agenda-files-update))
 
 ;;;; Fontaine (font configurations)
 ;; Read the manual: <https://protesilaos.com/emacs/fontaine>

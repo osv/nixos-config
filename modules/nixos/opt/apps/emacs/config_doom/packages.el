@@ -129,3 +129,6 @@
 
 (package! sticky-scroll-mode
   :recipe (:host github :repo "/jclasley/sticky-scroll-mode"))
+
+;; Org-roam helper: buffer tags, project detection for agenda integration
+(package! vulpea)
