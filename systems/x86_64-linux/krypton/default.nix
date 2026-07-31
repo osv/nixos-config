@@ -46,7 +46,10 @@ in {
       social = on;
       media = fuckOff;
     };
-    opt.tools = { appimage-run = fuckOff; };
+    opt.tools = {
+      nix-ld = on; # Required for uv/pip binary wheels (pyarrow, etc.)
+      appimage-run = fuckOff;
+    };
     opt.apps = {
       firefox = on;
       ai = {
