@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Current session:** Hostname is `!hostname` — if this shows **krypton**, it's the Dell Latitude 5530 laptop (portable workstation).
+
 ## Repository Overview
 
 This is a NixOS flake configuration repository using the Snowfall library framework. The primary host system is "xenon" with additional hosts "argon", "jasper", and "krypton". The configuration uses ZFS, impermanence (optionally on tmpfs root), and comprehensive modular organization. Update this file on adding or removing hosts.
