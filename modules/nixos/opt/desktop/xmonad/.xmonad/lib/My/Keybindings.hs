@@ -40,6 +40,7 @@ import My.Theme
 import My.Grid
 import My.ScratchPads
 import My.KeybindingTypes (KeybindingCategory(..), Keybinding(..), KeybindingCategoryDef(..), KeybindingDef(..), category, bind)
+import Graphics.X11.ExtraTypes.XF86
 
 myKeys :: XConfig l -> XConfig l
 myKeys = addDescrKeys' ((mod4Mask, xK_F1), showKeybindings) allKeys
@@ -206,6 +207,18 @@ myKeybindingCategories =
       , bind "M-e s"       "Emacsclient Eshell"                      $ spawn (myEmacs ++ "--eval '(eshell)'")
       , bind "M-e v"       "Emacsclient Vterm"                       $ spawn (myEmacs ++ "--eval '(+vterm/here nil)'")
       , bind "M-e w"       "Emacsclient EWW Browser"                 $ spawn (myEmacs ++ "--eval '(doom/window-maximize-buffer(eww \"distro.tube\"))'")
+      ]
+
+  , category "Multimedia keys" "multimedia-keys"
+      [ bind "<XF86MonBrightnessUp>"   "Increase screen brightness"   $ spawn "brightnessctl set +5%"
+      , bind "<XF86MonBrightnessDown>" "Decrease screen brightness"   $ spawn "brightnessctl set 5%-"
+      , bind "<XF86AudioRaiseVolume>"  "Increase volume"               $ spawn "pulsemixer --change-volume +5"
+      , bind "<XF86AudioLowerVolume>"  "Decrease volume"               $ spawn "pulsemixer --change-volume -5"
+      , bind "<XF86AudioMute>"         "Toggle mute"                   $ spawn "pulsemixer --toggle-mute"
+      , bind "<XF86AudioMicMute>"      "Toggle microphone mute"        $ spawn "sh -c 'pulsemixer --list-sources | grep Default | awk \"{print \\$3}\" | sed \"s/source-//\" | sed \"s/,$//\" | xargs -I {} pulsemixer --toggle-mute --id {}'"
+      , bind "M-KP_4"                 "Media previous"                $ spawn "playerctl previous"
+      , bind "M-KP_5"                 "Media play/pause"              $ spawn "playerctl play-pause"
+      , bind "M-KP_6"                 "Media next"                    $ spawn "playerctl next"
       ]
   ]
 

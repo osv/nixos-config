@@ -106,6 +106,8 @@ in
       scrot
       ksnip # screenshotter, when I need to draw arrow
       flameshot # another screenshotter
+      brightnessctl # for brightness control multimedia keys
+      playerctl # for media control multimedia keys
       pkgs.nerv.my-generate-keybindings-index # keybindings documentation generator
 
       ## Test config script
