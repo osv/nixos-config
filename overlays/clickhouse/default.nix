@@ -1,18 +1,9 @@
 { channels, ... }:
 
 final: prev: {
-  clickhouse-cli = channels.unstable.python311Packages.clickhouse-cli.override {
-    sqlparse = channels.unstable.python311Packages.sqlparse.overridePythonAttrs (oldAttrs: {
-      src = prev.fetchPypi {
-        pname = "sqlparse";
-        version = "0.4.3";
-        hash = "sha256-acqASEa7EU0uw4DkNgqKNA24PwzPOvzusUBN8Cj1cmg=";
-      };
-      nativeBuildInputs = [
-        prev.python311Packages.flit-core
-        prev.python311Packages.setuptools
-        prev.installShellFiles
-      ];
-    });
-  };
+  # Clickhouse-cli from unstable (updated to Python 3.13)
+  # Previously needed sqlparse override for version compatibility, but
+  # newer unstable versions have updated clickhouse-cli that works
+  # with current sqlparse. Override removed as it causes build failures.
+  clickhouse-cli = channels.unstable.python313Packages.clickhouse-cli;
 }

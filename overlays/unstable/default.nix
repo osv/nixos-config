@@ -1,8 +1,8 @@
 { channels, ... }:
 
 final: prev: {
-  inherit (channels.unstable) 
-    emacs-lsp-booster 
+  inherit (channels.unstable)
+    emacs-lsp-booster
     picom
     kubecolor
     gamescope
@@ -18,7 +18,6 @@ final: prev: {
     viber
     zoom-us
     nerd-fonts
-    nordic
     go-grip;
     
   tmuxPlugins = prev.tmuxPlugins // {

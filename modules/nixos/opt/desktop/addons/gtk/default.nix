@@ -8,9 +8,9 @@ in
   options.nerv.opt.desktop.addons.gtk = with types; {
     enable = mkBoolOpt false "Whether to customize GTK and apply themes.";
     theme = {
-      name = mkOpt str "Nordic-darker"
+      name = mkOpt str "Catppuccin-Mocha-Standard-Blue-Dark"
         "The name of the GTK theme to apply.";
-      pkg = mkOpt package pkgs.nordic "The package to use for the theme.";
+      pkg = mkOpt package pkgs.catppuccin-gtk "The package to use for the theme.";
     };
     cursor = {
       name = mkOpt str "Bibata-Modern-Ice"
@@ -26,7 +26,9 @@ in
 
   config = mkIf cfg.enable {
     environment.systemPackages = [
-      cfg.icon.pkg
+      cfg.theme.pkg  # GTK theme package
+      cfg.cursor.pkg # Cursor theme package
+      cfg.icon.pkg   # Icon theme package
     ];
 
     environment.sessionVariables = {
