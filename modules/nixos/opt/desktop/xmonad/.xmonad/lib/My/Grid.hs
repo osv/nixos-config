@@ -163,4 +163,6 @@ gsUtilities =
   , ("Emacsclient", "emacsclient -c -a 'emacs'")
   , ("Nitrogen", "nitrogen")
   , ("Vim", myTerminal ++ " -e vim")
+  , ("Flameshot (Screenshot)", "flameshot gui")
+  , ("Ksnip (Screenshot)", "ksnip")
   ]

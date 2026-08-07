@@ -34,6 +34,7 @@ myStartupHook = do
   spawnOnce "my-set-wallpaper"
   spawn "killall polybar 2>/dev/null; sleep 1 && polybar -c ~/.config/xmonad-polybar/temp-polybar.ini &"
   spawnOnce "xsetroot -cursor_name left_ptr" -- I don't like default "X" cursor over desktop
+  spawnOnce "flameshot &" -- Screenshot tool daemon for clipboard support
   setWMName "LG3D"
   exportKeybindings  -- Export keybindings to HTML visualization
 

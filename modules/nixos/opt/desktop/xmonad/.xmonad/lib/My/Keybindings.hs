@@ -210,8 +210,8 @@ myKeybindingCategories =
       ]
 
   , category "Multimedia keys" "multimedia-keys"
-      [ bind "<XF86MonBrightnessUp>"   "Increase screen brightness"   $ spawn "brightnessctl set +5%"
-      , bind "<XF86MonBrightnessDown>" "Decrease screen brightness"   $ spawn "brightnessctl set 5%-"
+      [ bind "<XF86MonBrightnessUp>"   "Increase screen brightness"   $ spawn "brightnessctl set +10%"
+      , bind "<XF86MonBrightnessDown>" "Decrease screen brightness"   $ spawn "brightnessctl set 10%-"
       , bind "<XF86AudioRaiseVolume>"  "Increase volume"               $ spawn "pulsemixer --change-volume +5"
       , bind "<XF86AudioLowerVolume>"  "Decrease volume"               $ spawn "pulsemixer --change-volume -5"
       , bind "<XF86AudioMute>"         "Toggle mute"                   $ spawn "pulsemixer --toggle-mute"
@@ -219,6 +219,10 @@ myKeybindingCategories =
       , bind "M-KP_4"                 "Media previous"                $ spawn "playerctl previous"
       , bind "M-KP_5"                 "Media play/pause"              $ spawn "playerctl play-pause"
       , bind "M-KP_6"                 "Media next"                    $ spawn "playerctl next"
+      ]
+
+  , category "Screenshots" "screenshots"
+      [ bind "<Print>"     "Screenshot area (flameshot)"             $ spawn "flameshot gui"
       ]
   ]
 
