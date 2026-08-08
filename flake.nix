@@ -2,13 +2,13 @@
   description = "OSV Config";
 
   inputs = {
-    # NixPkgs (nixos-25.11)
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
+    # NixPkgs (nixos-26.05)
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
 
     # NixPkgs Unstable (nixos-unstable)
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    home-manager.url = "github:nix-community/home-manager/release-25.11";
+    home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     flake-utils.url = "github:numtide/flake-utils";
