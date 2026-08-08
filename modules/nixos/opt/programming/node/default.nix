@@ -11,11 +11,11 @@ in
     prettier = {
       enable = mkBoolOpt true "Whether or not to install Prettier";
       pkg =
-        mkOpt package pkgs.nodePackages.prettier "The NodeJS package to use";
+        mkOpt package pkgs.prettier "The NodeJS package to use";
     };
     yarn = {
       enable = mkBoolOpt true "Whether or not to install Yarn";
-      pkg = mkOpt package pkgs.nodePackages.yarn "The NodeJS package to use";
+      pkg = mkOpt package pkgs.yarn "The NodeJS package to use";
     };
     flyctl = {
       enable = mkBoolOpt true "Whether or not to install flyctl";

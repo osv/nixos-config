@@ -62,7 +62,8 @@ let
   configToScript = attrs:
     let
       args = configToArgs attrs;
-      argToCommand = arg: "${pkgs.plasma5Packages.kconfig}/bin/kwriteconfig5 ${arg}";
+      # NixOS 26.05: Plasma 5 removed, use kdePackages.kconfig
+      argToCommand = arg: "${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 ${arg}";
       commands = builtins.map argToCommand args;
     in
     lib.strings.concatStringsSep "\n" commands;
@@ -98,7 +99,8 @@ in
 
         Service = {
           Type = "oneshot";
-          ExecStart = "${pkgs.plasma5Packages.plasma-workspace}/bin/plasma-apply-wallpaperimage ${lib.escapeShellArg cfg.wallpaper}";
+          # NixOS 26.05: Plasma 5 removed, use kdePackages.plasma-workspace
+          ExecStart = "${pkgs.kdePackages.plasma-workspace}/bin/plasma-apply-wallpaperimage ${lib.escapeShellArg cfg.wallpaper}";
         };
 
         Install.WantedBy = [ "plasma-workspace.target" ];

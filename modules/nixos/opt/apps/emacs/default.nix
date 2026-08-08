@@ -46,7 +46,7 @@ let
       graphviz # :lang (org +roam2) :lang plantuml
       jq # rest +jq
       emacs-lsp-booster # lsp
-      nodePackages.sql-formatter
+      sql-formatter
     ]
     ++ optionals (cfg.env.spell) [
       (aspellWithDicts (p:
@@ -64,7 +64,7 @@ let
       # nixfmt # :lang nix :editor format
     ]
     ++ optionals (cfg.env.langWeb) [
-      nodePackages.js-beautify # :lang web
+      js-beautify # :lang web
       html-tidy # :lang web
     ]
     ++ optionals (cfg.env.haskell) [
@@ -94,21 +94,21 @@ let
       nodejs # :tools debugger
     ]
     ++ optionals (cfg.env.langJS) [
-      #nodePackages.eslint # :lang (json +lsp)
-      #nodePackages.stylelint # :lang web
-      nodePackages.js-beautify # :lang web
-      nodePackages.prettier # :editor format
+      # eslint # :lang (json +lsp)
+      # stylelint # :lang web
+      js-beautify # :lang web
+      prettier # :editor format
     ]
     ++ optionals (cfg.env.langCPP) [
       clang-tools # :lang (cc +lsp) :editor format
     ]
     ++ optionals (cfg.env.nodejsLSP) [
-      nodePackages.bash-language-server # :lang (sh +lsp)
-      nodePackages.dockerfile-language-server-nodejs # :tools (docker +lsp)
-      nodePackages.vscode-css-languageserver-bin # :lang (web +lsp)
-      nodePackages.vscode-html-languageserver-bin # :lang (web +lsp)
-      nodePackages.vscode-json-languageserver-bin # :lang (json +lsp)
-      nodePackages.yaml-language-server # :lang (yaml +lsp)
+      bash-language-server # :lang (sh +lsp)
+      dockerfile-language-server # :tools (docker +lsp)
+      # vscode-css-languageserver-bin # :lang (web +lsp)
+      # vscode-html-languageserver-bin # :lang (web +lsp)
+      # vscode-json-languageserver-bin # :lang (json +lsp)
+      yaml-language-server # :lang (yaml +lsp)
     ]
     ++ optionals (cfg.env.latex) [
       texlive.combined.scheme-medium # latex preview in org-mode

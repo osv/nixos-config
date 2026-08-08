@@ -117,7 +117,6 @@ in
       environment.systemPackages = with pkgs.libsForQt5;
         with pkgs; [
           qdirstat
-          k4dirstat
 
           kdePackages.dolphin
           kdePackages.dolphin-plugins # TODO: integrate Dolphin with th Git, Dropbox

@@ -9,7 +9,7 @@ in
   options.nerv.opt.cli-apps.prisma = with types; {
     enable = mkBoolOpt false "Whether or not to install Prisma";
     pkgs = {
-      npm = mkOpt package pkgs.nodePackages.prisma "The NPM package to install";
+      npm = mkOpt package pkgs.prisma "The NPM package to install";
       engines = mkOpt package pkgs.prisma-engines
         "The package to get prisma engines from";
     };

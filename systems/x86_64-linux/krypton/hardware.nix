@@ -18,17 +18,31 @@ in {
   boot.supportedFilesystems = [ "zfs" "ntfs" ];
   networking.hostId = "1e4e3d80"; # Required for zfs
   networking.hostName = "krypton";
-  boot.kernelPackages = pkgs.linuxPackages_zen;
-  boot.zfs.package = pkgs.zfs_2_4; # ZFS 2.4 supports kernel 6.18
+  # Use LTS kernel 6.12 for ZFS 2.4.3 compatibility
+  # Kernels 7.x have ZFS compatibility issues
+  boot.kernelPackages = pkgs.linuxPackages_6_12;
+  boot.zfs.package = pkgs.zfs_2_4;
   boot.zfs.requestEncryptionCredentials = true;
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 20;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  boot.initrd.postDeviceCommands = lib.mkAfter ''
-    # zfs rollback -r tank/local/blank-root@blank
-  '';
+  # ZFS rollback using systemd service (systemd stage 1 compatible)
+  boot.initrd.systemd.services.zfs-rollback = {
+    description = "Rollback ZFS root dataset to pristine state";
+    wantedBy = [ "initrd.target" ];
+    after = [ "zfs-import-zroot.service" ];
+    before = [ "sysroot.mount" ];
+    path = [ pkgs.zfs ];
+    unitConfig.DefaultDependencies = false;
+    serviceConfig.Type = "oneshot";
+    script = ''
+      # zfs rollback -r tank/local/blank-root@blank || true
+      echo "ZFS rollback complete (rollback operation disabled)"
+    '';
+  };
+
 
   swapDevices = [ ];
 

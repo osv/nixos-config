@@ -159,18 +159,10 @@ in {
 
   hardware.bluetooth.enable = true;
 
-  # NOTE: NixOS 26.05 uses systemd stage 1 by instead of scripted stage 1
-  # This system uses ZFS with encryption (encryption = "on", keylocation = "prompt")
-  #
-  # Potential issue: systemd stage 1 may have problems with ZFS native encryption
-  # If boot fails, temporarily disable systemd stage 1:
-  #   boot.initrd.systemd.enable = false;
-  #
-  # For now, we're keeping systemd stage 1 enabled (default in 26.05)
-  # If you experience boot issues with encrypted ZFS, see:
-  # https://nixos.org/manual/nixos/stable/release-notes#sec-release-26.05-highlights
-  #
-  # The old scripted stage 1 is deprecated and will be removed in 26.11
+  # NOTE: NixOS 26.05 uses systemd stage 1 by default
+  # This system uses ZFS with native encryption (encryption = "on", keylocation = "prompt")
+  # Using systemd service for ZFS rollback instead of boot.initrd.postDeviceCommands
+  # See boot.initrd.systemd.services.zfs-rollback in hardware.nix
 
   # No NVIDIA GPU on this system (krypton is Dell Latitude 5530 laptop)
 
