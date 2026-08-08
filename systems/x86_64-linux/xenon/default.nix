@@ -162,7 +162,9 @@ in {
   hardware.bluetooth.enable = true;
 
   # Nvidia related config
+  # NOTE: NixOS 26.05 updated NVIDIA module layout - use `branch` instead
   hardware.nvidia = {
+    branch = "beta";  # Select beta branch (kernel 6.18 compatible)
     package = config.boot.kernelPackages.nvidiaPackages.beta;
     open = false;
   };
