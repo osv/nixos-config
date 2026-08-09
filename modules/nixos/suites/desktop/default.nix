@@ -43,6 +43,7 @@ in
             wezterm = on;
           };
           gtk = on;
+          qt-theme = on;
           mime = on;
           file = on // {
             letsMountWindows = yes;

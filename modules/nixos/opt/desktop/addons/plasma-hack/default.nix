@@ -86,7 +86,21 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf (cfg.kconfig != { }) {
-      nerv.home.activation.kconfig-setup = "$DRY_RUN_CMD ${writeConfig cfg.kconfig}";
+      # Apply KDE config via systemd user service (runs at every boot/login)
+      nerv.home.extraOptions.systemd.user.services.kconfig-setup = {
+        Unit = {
+          Description = "Apply KDE config from Nix configuration";
+          After = [ "graphical-session-pre.target" ];
+          Before = [ "plasma-plasmashell.service" "graphical-session.target" ];
+          PartOf = [ "graphical-session.target" ];
+        };
+        Service = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = writeConfig cfg.kconfig;
+        };
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
     })
     # TODO: Test wallpaper service
     (lib.mkIf (cfg.wallpaper != null) {
