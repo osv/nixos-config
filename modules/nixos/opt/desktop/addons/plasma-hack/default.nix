@@ -72,10 +72,10 @@ let
 in
 {
   options.nerv.opt.desktop.addons.plasma-hack = {
-    kconfig = lib.mkOption {
-      type = lib.types.attrs;
-      default = { };
-      description = "Config files needed to update by kwriteconfig5 tool";
+    kconfigs = lib.mkOption {
+      type = lib.types.listOf lib.types.attrs;
+      default = [ ];
+      description = "List of KDE config files to update by kwriteconfig6. Each module adds its own settings.";
     };
 
     wallpaper = lib.mkOption {
@@ -85,7 +85,7 @@ in
   };
 
   config = lib.mkMerge [
-    (lib.mkIf (cfg.kconfig != { }) {
+    (lib.mkIf (cfg.kconfigs != [ ]) {
       # Apply KDE config via systemd user service (runs at every boot/login)
       nerv.home.extraOptions.systemd.user.services.kconfig-setup = {
         Unit = {
@@ -97,7 +97,8 @@ in
         Service = {
           Type = "oneshot";
           RemainAfterExit = true;
-          ExecStart = writeConfig cfg.kconfig;
+          # Merge all kconfigs from different modules and write them
+          ExecStart = writeConfig (lib.foldr lib.recursiveUpdate { } cfg.kconfigs);
         };
         Install.WantedBy = [ "graphical-session.target" ];
       };

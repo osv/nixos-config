@@ -26,13 +26,15 @@ in
     ];
 
     # Apply KDE/Qt theme via plasma-hack
-    nerv.opt.desktop.addons.plasma-hack.kconfig = {
-      kdeglobals = {
-        KDE.LookAndFeelPackage = "org.kde.${cfg.theme.name}";
-        General.ColorScheme = cfg.colorScheme.name;
-        General.Name = cfg.colorScheme.name;
-        General.widgetStyle = "Breeze";
-      };
-    };
+    nerv.opt.desktop.addons.plasma-hack.kconfigs = [
+      {
+        kdeglobals = {
+          KDE.LookAndFeelPackage = "org.kde.${cfg.theme.name}";
+          General.ColorScheme = cfg.colorScheme.name;
+          General.Name = cfg.colorScheme.name;
+          General.widgetStyle = "Breeze";
+        };
+      }
+    ];
   };
 }

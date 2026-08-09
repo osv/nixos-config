@@ -95,11 +95,13 @@ in
     })
 
     (mkIf (cfg.enable && cfg.kdeFile.enable) {
-      nerv.opt.desktop.addons.plasma-hack.kconfig = {
-        kdeglobals = {
-          General.TerminalApplication=config.nerv.opt.desktop.addons.term.defaultTerminal;
-        };
-      };
+      nerv.opt.desktop.addons.plasma-hack.kconfigs = [
+        {
+          kdeglobals = {
+            General.TerminalApplication=config.nerv.opt.desktop.addons.term.defaultTerminal;
+          };
+        }
+      ];
 
       nerv.opt.persist.state = {
         homeFiles = [
