@@ -8,7 +8,7 @@ in
   options.nerv.opt.desktop.addons.gtk = with types; {
     enable = mkBoolOpt false "Whether to customize GTK and apply themes.";
     theme = {
-      name = mkOpt str "Catppuccin-Mocha-Standard-Blue-Dark"
+      name = mkOpt str "catppuccin-frappe-blue-standard"
         "The name of the GTK theme to apply.";
       pkg = mkOpt package pkgs.catppuccin-gtk "The package to use for the theme.";
     };
