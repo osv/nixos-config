@@ -23,6 +23,7 @@ in {
   boot.kernelPackages = pkgs.linuxPackages_6_12;
   boot.zfs.package = pkgs.zfs_2_4;
   boot.zfs.requestEncryptionCredentials = true;
+  boot.zfs.forceImportRoot = false; # Explicitly set to silence 26.05 warning (recommended: false)
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 20;

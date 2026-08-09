@@ -30,8 +30,8 @@ my-nixos-diff
 
 ### Formatting Nix Code
 ```bash
-# Format nix files
-nixfmt-classic <file.nix>
+# Format nix files (nixfmt-classic is deprecated, use nixfmt)
+nixfmt <file.nix>
 ```
 
 ## Architecture Overview

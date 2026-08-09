@@ -21,7 +21,7 @@ in {
       activation.xrdb = {
         after = [ "linkGeneration" ];
         before = [ ];
-        data = "DISPLAY=:0 ${pkgs.xorg.xrdb}/bin/xrdb ~/.Xresources || exit 0";
+        data = "DISPLAY=:0 ${pkgs.xrdb}/bin/xrdb ~/.Xresources || exit 0";
       };
     };
   };

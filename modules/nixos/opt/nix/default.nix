@@ -54,7 +54,7 @@ in
         systemPackages = with pkgs; [
           nerv.nixos-revision
           deploy-rs
-          nixfmt-classic
+          nixfmt
           nix-index
           nix-prefetch-git
           nix-output-monitor # sudo nixos-rebuild switch  -v --flake . |& nom

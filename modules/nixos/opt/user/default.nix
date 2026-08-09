@@ -62,7 +62,7 @@ in {
       BAT_THEME = "base16"; # The theme is defined by the terminal's colors. URXVT has a setup for multiple themes, and this works well.
     };
 
-    documentation.man.generateCaches = true; # check man in carapace
+    documentation.man.cache.enable = true; # check man in carapace
     programs.zsh = {
       enable = true;
       autosuggestions.enable = true;
@@ -140,6 +140,10 @@ in {
             enableCompletion = true;
             autosuggestion.enable = true;
             syntaxHighlighting.enable = true;
+
+            # Explicitly set dotDir to silence 26.05 warning (lock in current behavior - home directory)
+            dotDir = "/home/${config.nerv.opt.user.name}";
+
             history = {
               size = 30000;
               save = 30000;

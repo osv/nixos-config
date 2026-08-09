@@ -44,6 +44,9 @@ in
           package = cfg.theme.pkg;
         };
 
+        # Explicitly set gtk4.theme to null to silence 26.05 warning (new behavior)
+        gtk4.theme = null;
+
         cursorTheme = {
           name = cfg.cursor.name;
           package = cfg.cursor.pkg;

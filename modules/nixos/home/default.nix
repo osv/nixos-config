@@ -27,9 +27,10 @@ in
       home.activation = mkAliasDefinitions options.nerv.home.activation;
       xdg = on // {
         configFile = mkAliasDefinitions options.nerv.home.configFile;
-        # TODO: Configure userDirs
-        userDirs = on;
-
+        # Explicitly set setSessionVariables to silence 26.05 warning
+        userDirs = on // {
+          setSessionVariables = true;
+        };
       };
     };
 

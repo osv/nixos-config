@@ -90,7 +90,7 @@ in {
       mkdir -p ${cacheDir}
       if [ ! -f ${cacheHashFile} ] || [ "$(cat ${cacheHashFile} 2>/dev/null)" != "${cacheHash}" ]; then
         ${homeEcho "Screenlock" "Updating wallpaper cache..."}
-        if PATH="${pkgs.xorg.xrdb}/bin:$PATH" ${pkgs.betterlockscreen}/bin/betterlockscreen -u "${wallpaperPath}" --fx ${cfg.effect}; then
+        if PATH="${pkgs.xrdb}/bin:$PATH" ${pkgs.betterlockscreen}/bin/betterlockscreen -u "${wallpaperPath}" --fx ${cfg.effect}; then
           echo "${cacheHash}" > ${cacheHashFile}
           ${homeEcho "Screenlock" "Wallpaper cache updated"}
         else

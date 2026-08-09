@@ -4,6 +4,7 @@ with lib;
 with lib.nerv;
 let
   cfg = config.nerv.opt.apps.firefox;
+  firefoxConfigPath = ".mozilla/firefox"; # Used for both programs.firefox.configPath and persist
 
   merge = lib.foldr (a: b: a // b) { };
 
@@ -233,6 +234,9 @@ in
         enable = true;
         package = pkg-firefox;
 
+        # Explicitly set configPath to silence 26.05 warning (keep legacy behavior)
+        configPath = firefoxConfigPath;
+
         profiles.${config.nerv.opt.user.name} = {
           inherit (cfg) extraConfig userChrome search;
           extensions.packages = extensions;
@@ -279,6 +283,6 @@ in
       ];
     };
 
-    nerv.opt.persist.state.homeDirectories = [ ".mozilla/firefox" ];
+    nerv.opt.persist.state.homeDirectories = [ firefoxConfigPath ];
   };
 }

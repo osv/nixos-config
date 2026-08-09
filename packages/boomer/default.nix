@@ -20,9 +20,9 @@ pkgs.buildNimPackage {
   patches = [ ./aa-flashpoint.patch ];
 
   buildInputs = with pkgs; [
-    xorg.libX11
-    xorg.libXrandr
-    xorg.libXext
+    libx11
+    libxrandr
+    libxext
     libGL
     libGLU
   ];

@@ -100,7 +100,7 @@ in
       arandr
       xzoom
       dzen2 # for showing help by M-F1
-      xorg.xwininfo # emacs everywhere
+      xwininfo # emacs everywhere
       xclip
       xdotool
       scrot
