@@ -13,7 +13,8 @@ let
   # Empty package list as I use straight.el now to try it out.
   # vterm is an exception as it does not currently build in a
   # naive way, which makes straight.el support difficult.
-  emacsPkg = emacsWithPackages (epkgs: [ epkgs.vterm ]);
+  # editorconfig - added to fix void-variable editorconfig-exclude-regexps error
+  emacsPkg = emacsWithPackages (epkgs: [ epkgs.vterm epkgs.editorconfig ]);
 
   # Next packages for emacs only, lets make system more pure
   emacsEnvPackages = with pkgs;
