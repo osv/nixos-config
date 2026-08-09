@@ -102,7 +102,7 @@ in {
             allow-emacs-pinentry
             allow-loopback-pinentry
           '';
-        pinentry.package = pkgs.pinentry-gtk2;
+        pinentry.package = pkgs.pinentry-qt;
       };
 
       opt.persist.state.homeDirectories = [ { directory = ".gnupg"; mode = "0700"; } ];
