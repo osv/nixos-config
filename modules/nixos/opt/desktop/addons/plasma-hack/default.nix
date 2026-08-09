@@ -66,9 +66,9 @@ let
       argToCommand = arg: "${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 ${arg}";
       commands = builtins.map argToCommand args;
     in
-    lib.strings.concatStringsSep "\n" commands;
+    "#!${pkgs.bash}/bin/bash\n" + lib.strings.concatStringsSep "\n" commands;
 
-  writeConfig = attrs: pkgs.writeScript "kconfig-setup" (configToScript attrs);
+  writeConfig = attrs: pkgs.writeShellScript "kconfig-setup" (configToScript attrs);
 in
 {
   options.nerv.opt.desktop.addons.plasma-hack = {
