@@ -5,14 +5,6 @@ with lib.nerv;
 let
   cfg = config.nerv.opt.desktop.addons.qt-theme;
 
-  # Helper function to capitalize first letter
-  capitalize = str:
-    let
-      first = substring 0 1 str;
-      rest = substring 1 (-1) str;
-    in
-    toUpper first + rest;
-
   # Theme name for KDE (CamelCase)
   kdeThemeName = "Catppuccin-${capitalize cfg.flavor}-${capitalize cfg.accent}";
   kdeColorScheme = "Catppuccin${capitalize cfg.flavor}${capitalize cfg.accent}";

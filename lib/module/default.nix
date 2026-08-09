@@ -22,6 +22,15 @@ with lib; rec {
   fuckOff = { enable = lib.mkForce false; };
   fuckYes = lib.mkForce true;
 
+  # Capitalize first letter of string (for Catppuccin theme names)
+  # Usage: capitalize "frappe" -> "Frappe"
+  capitalize = str:
+    let
+      first = lib.substring 0 1 str;
+      rest = lib.substring 1 (-1) str;
+    in
+    lib.toUpper first + rest;
+
   # Colored echo for system activation scripts (bold green)
   # Usage: ${sysEcho "Persist" "Creating home dirs..."}
   sysEcho = tag: msg: ''echo -e "\033[1;32m[${tag}]\033[0m ${msg}"'';
