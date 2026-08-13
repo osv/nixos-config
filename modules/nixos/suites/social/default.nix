@@ -14,6 +14,7 @@ in {
         telegram = on;
         zoom = on;
         viber = on;
+        signal = on;
         discord = {
           # enable = yes;
           # native = on;

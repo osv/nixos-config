@@ -165,6 +165,52 @@ nerv = {
 };
 ```
 
+### Flatpak Apps
+
+Flatpak runs containerised GUI apps from Flathub (prebuilt — no native compilation, useful for apps with heavy native deps like Electron/Chromium). Infrastructure lives in `nerv.opt.apps.flatpak`: system flatpak daemon, flathub remote, weekly auto-update, and persistence (package/runtime stores in `derivative`, app user data `~/.var/app` in `state`).
+
+**Auto-enable**: declaring any flatpak app (via `nerv.opt.apps.flatpak.packages`, see below) auto-enables flatpak (and pulls in `nerv.opt.desktop.addons.xdg-portal`). A suite/host can opt out with `nerv.opt.apps.flatpak = off`. To force flatpak on without any declared app, set `nerv.opt.apps.flatpak = on`.
+
+The NixOS level (`services.flatpak.*`, nixpkgs built-in) only exposes `enable`, `package`, and `extraPortals` — it just runs the system daemon. The full declarative surface (remotes / packages / overrides / update) lives in the `nix-flatpak` **home-manager** module ([github.com/gmodena/nix-flatpak](https://github.com/gmodena/nix-flatpak), wired in `flake.nix` `homes.modules`); the flatpak module forwards `packages`/remotes/update/overrides there.
+
+**Adding a flatpak app**: add a `stdModules` entry in `modules/nixos/opt/apps/default.nix` with an **empty packages list** and add the app id to `nerv.opt.apps.flatpak.packages` in `extraConfig` (this auto-enables flatpak):
+
+```nix
+[
+  "nerv.opt.apps.<name>"
+  "<App name> (via flatpak)"
+  (with pkgs; [ ])
+  {}
+  { nerv.opt.apps.flatpak.packages = [ "org.example.App" ]; }
+]
+```
+- Find the app id at https://flathub.org (e.g. `org.signal.Signal`).
+- No `persistConfig` needed — the flatpak module already persists `~/.var/app`.
+- Requires `nerv.opt.desktop.addons.xdg-portal` for FileChooser/Settings/OpenURI portals — nixpkgs hard-asserts `xdg.portal.enable` when flatpak is on, and the flatpak module brings the portal addon along (mkDefault). Portal backends are managed centrally by the xdg-portal module.
+- Imperative alternative: `flatpak install flathub <app-id>`.
+
+**nix-flatpak options** (home-manager only — set under `nerv.home.extraOptions.services.flatpak`):
+- `packages` — list of app ids (strings) or attrsets: `{ appId = "..."; origin = "flathub"; }`, `{ flatpakref = "<uri>"; sha256 = "..."; }`, or bundles `{ appId; sha256; bundle = fetchurl{...}; }`.
+- `remotes` — `[ { name = "flathub"; location = "<url>.flatpakrepo"; } ]` (flathub is default).
+- `overrides.settings` — per-app/global overrides, e.g. force Wayland, theme, filesystem access:
+  ```nix
+  overrides.settings = {
+    global.Context.sockets = [ "wayland" "!x11" "!fallback-x11" ];
+    "com.example.App".Context.filesystems = [ "xdg-download" "/run/current-system/sw/bin:ro" ];
+  };
+  ```
+  (This is how the Steam module grants filesystem access, via `overrides."com.valvesoftware.Steam"`.)
+- `overrides.files` — list of external override file paths; `overrides.writeMode = "merge" | "replace"`.
+- `update.onActivation = true` — run `flatpak update` on every rebuild.
+- `update.auto = { enable = true; onCalendar = "Sun 14:00"; }` — systemd-timer auto-update (enabled in the infra module: Sunday daytime).
+- `uninstallUnmanaged = true` — remove flatpaks installed outside Nix (off by default; be careful).
+- `restartOnFailure = { enable = true; restartDelay = "60s"; }` — retry the install service.
+
+### XDG Portals
+
+`nerv.opt.desktop.addons.xdg-portal` (enabled in `desktop` suite) is the **single owner** of portal config: `xdg.portal.enable`, backends (`xdg-desktop-portal-gtk` + `xdg-desktop-portal-wlr`), `config.common.default = [ "gtk" "wlr" ]`. Other modules must NOT set `xdg.portal.*`. The flatpak module brings `xdg-portal` along via mkDefault when enabled, and emits a build **warning** if it ends up disabled.
+Host theming reaches flatpak/Firefox via the gtk Settings portal reading `dconf org.gnome.desktop.interface` (set by the gtk addon, incl. `color-scheme`). After portal changes: `systemctl --user restart xdg-desktop-portal` or re-login.
+
 ### Simplified Module Creation with `stdModules`
 
 For simple modules that only need package installation and persistence configuration, use the `stdModules` helper function to reduce boilerplate.

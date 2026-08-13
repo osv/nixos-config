@@ -57,6 +57,11 @@ in
           package = cfg.icon.pkg;
         };
       };
+
+      # Tell portal-aware apps (flatpak, Firefox "Default" theme, libadwaita, etc.)
+      # to render dark. The gtk portal (org.freedesktop.impl.portal.Settings) reads
+      # this gsetting and propagates it; without it the system reports "light".
+      dconf.settings."org/gnome/desktop/interface".color-scheme = "prefer-dark";
     };
   };
 }

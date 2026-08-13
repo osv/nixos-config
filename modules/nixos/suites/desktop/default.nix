@@ -44,6 +44,7 @@ in
           };
           gtk = on;
           qt-theme = on;
+          xdg-portal = on; # XDG desktop portals (FileChooser/Settings) — required by flatpak apps
           mime = on;
           file = on // {
             letsMountWindows = yes;
@@ -81,6 +82,8 @@ in
         gparted = on;
         office = on;
         torrent = on;
+        # flatpak auto-enables when a flatpak app is declared (e.g. Signal in the
+        # social suite). Set `flatpak = on` here only to force it on without apps.
       };
 
       opt.security = {

@@ -66,6 +66,9 @@ in
       ".config/EgoSoft"
     ];
 
+    # Declare the Steam flatpak via the flatpak module's package list (auto-enables
+    # flatpak infra). Per-app overrides still go to the nix-flatpak home-manager surface.
+    nerv.opt.apps.flatpak.packages = optional cfg.enableFlatpak "com.valvesoftware.Steam";
     nerv.home.extraOptions.services.flatpak = mkIf cfg.enableFlatpak {
       overrides = {
         "com.valvesoftware.Steam" = {
@@ -85,9 +88,6 @@ in
           # };
         };
       };
-      packages = [
-        "com.valvesoftware.Steam"
-      ];
     };
   };
 }

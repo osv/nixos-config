@@ -214,6 +214,14 @@ stdModules { inherit config lib pkgs; } [
   ]
 
   [
+    "nerv.opt.apps.signal"
+    "Signal (private messenger via flatpak)"
+    (with pkgs; [ ])
+    {}
+    { nerv.opt.apps.flatpak.packages = [ "org.signal.Signal" ]; }
+  ]
+
+  [
     "nerv.opt.apps.steamtinkerlaunch"
     "Steam Tinker Launch"
     (with pkgs; [ steamtinkerlaunch ])

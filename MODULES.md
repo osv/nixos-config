@@ -19,6 +19,7 @@
 | `nerv.opt.apps.emacs` | Emacs editor with Doom config |
 | `nerv.opt.apps.etcher` | USB/SD card image writer |
 | `nerv.opt.apps.firefox` | Firefox browser with privacy config |
+| `nerv.opt.apps.flatpak` | Flatpak containerised app runtime (flathub remote) |
 | `nerv.opt.apps.frappe-books` | Accounting software |
 | `nerv.opt.apps.freetube` | Privacy-focused YouTube client |
 | `nerv.opt.apps.gimp` | Image manipulation program |
@@ -39,6 +40,7 @@
 | `nerv.opt.apps.qimgv` | Qt5 image viewer |
 | `nerv.opt.apps.rpcs3` | PlayStation 3 emulator |
 | `nerv.opt.apps.shotcut` | Video editor |
+| `nerv.opt.apps.signal` | Signal private messenger (via flatpak) |
 | `nerv.opt.apps.simplescreenrecorder` | Screen recorder for Linux |
 | `nerv.opt.apps.steamtinkerlaunch` | Steam game tweaking tool |
 | `nerv.opt.apps.telegram` | Telegram messenger |
