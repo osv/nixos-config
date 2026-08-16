@@ -19,4 +19,4 @@ Review the stuff I'm adding from the diff and identify any concerning content th
 - Any other sensitive data
 
 If you find concerns, list each one with the file and line.
-If everything looks safe to publish, respond with: "No sensitive data detected." and no other content
+If everything looks safe to publish, respond with: "No sensitive data detected." and no other content.

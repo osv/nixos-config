@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a NixOS flake configuration repository using the Snowfall library framework. The primary host system is "xenon" with additional hosts "argon", "jasper", and "krypton". The configuration uses ZFS, impermanence (optionally on tmpfs root), and comprehensive modular organization. Update this file on adding or removing hosts.
+This is a Snowfall-based NixOS flake using the `nerv` namespace. Host definitions live in `systems/x86_64-linux/<host>/`; reusable NixOS modules are under `modules/nixos/`; custom packages, overlays, shells, and shared helpers live in `packages/`, `overlays/`, `shells/`, and `lib/`. Documentation and static resources belong in `docs/` and `assets/`; secrets belong only in the encrypted `secrets/` workflow. The configuration uses ZFS, impermanence (optionally on tmpfs root), and comprehensive modular organization.
 
 ## Key Commands
 
