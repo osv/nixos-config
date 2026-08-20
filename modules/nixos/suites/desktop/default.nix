@@ -1,13 +1,19 @@
-{ options, config, lib, pkgs, ... }:
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 with lib.nerv;
-let cfg = config.nerv.suites.desktop;
+let
+  cfg = config.nerv.suites.desktop;
 in
 {
   options.nerv.suites.desktop = with types; {
-    enable =
-      mkBoolOpt false "Whether or not to enable common desktop configuration.";
+    enable = mkBoolOpt false "Whether or not to enable common desktop configuration.";
   };
 
   config = mkIf cfg.enable {
@@ -68,6 +74,7 @@ in
 
       opt.apps = {
         # _1password = on;
+        kopia = on;
         firefox = on;
         chromium = on; # Need for testing some frontend shit
         mpv = on;

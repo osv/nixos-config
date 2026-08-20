@@ -26,6 +26,7 @@
 | `nerv.opt.apps.gparted` | Partition editor |
 | `nerv.opt.apps.hey` | Benchmarking tool |
 | `nerv.opt.apps.inkscape` | Vector graphics editor |
+| `nerv.opt.apps.kopia` | Encrypted backups to cloud storage through rclone |
 | `nerv.opt.apps.logseq` | Knowledge management tool |
 | `nerv.opt.apps.looking-glass-client` | VM display client |
 | `nerv.opt.apps.lutris` | Gaming platform |

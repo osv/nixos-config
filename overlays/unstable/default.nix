@@ -7,7 +7,9 @@ final: prev: {
     kubecolor
     gamescope
     firefox
-    wrapOBS obs-studio obs-studio-plugins
+    wrapOBS
+    obs-studio
+    obs-studio-plugins
     freetube
     flyctl
     nixUnstable
@@ -18,8 +20,10 @@ final: prev: {
     viber
     zoom-us
     nerd-fonts
-    go-grip;
-    
+    kopia-ui
+    go-grip
+    ;
+
   tmuxPlugins = prev.tmuxPlugins // {
     inherit (channels.unstable.tmuxPlugins) vim-tmux-navigator;
   };
