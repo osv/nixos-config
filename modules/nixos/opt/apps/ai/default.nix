@@ -51,8 +51,8 @@ let
   # Environment setup for z.ai API
   zaiEnvSetup = ''
     # z.ai API configuration
-    export ANTHROPIC_DEFAULT_OPUS_MODEL="glm-5.2[1m]"
-    export ANTHROPIC_DEFAULT_SONNET_MODEL="glm-5.2[1m]"
+    export ANTHROPIC_DEFAULT_OPUS_MODEL="glm-5.3[1m]"
+    export ANTHROPIC_DEFAULT_SONNET_MODEL="glm-4.7"
     export ANTHROPIC_DEFAULT_HAIKU_MODEL="GLM-4.7"
     ANTHROPIC_AUTH_TOKEN="$(pass show z.ai-crush-key)"
     export ANTHROPIC_AUTH_TOKEN
