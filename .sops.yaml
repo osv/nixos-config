@@ -9,3 +9,7 @@ creation_rules:
     key_groups:
     - age:
       - *xenon
+  - path_regex: secrets/.*\.binary$
+    key_groups:
+    - age:
+      - *xenon

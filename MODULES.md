@@ -202,7 +202,7 @@
 | `nerv.opt.tools.net` | Network utilities |
 | `nerv.opt.tools.nix-ld` | Dynamic library loader for Nix |
 | `nerv.opt.tools.qmk` | QMK keyboard firmware tools |
-| `nerv.opt.tools.steganography` | Steganography with 7z encryption and image hiding |
+| `nerv.opt.tools.steganography` | Encrypted steganography backup and restore tools |
 
 ## Programming
 

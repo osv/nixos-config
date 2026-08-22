@@ -564,6 +564,19 @@ Current hostname: !`hostname`
 - **ALWAYS run `/check-secrets` before committing** — this is a CLAUDE.md requirement
 - Flow: stage files → `/check-secrets` → commit
 
+### Private Scripts
+
+- Scripts whose source must not be visible belong only in dedicated
+  SOPS-encrypted binary files such as `secrets/my-secrets-backup.bash.binary`.
+- Keep shared SOPS infrastructure in the SOPS module. Declare feature-specific
+  `sops.secrets` conditionally in the feature module that consumes them.
+- Never place their plaintext in repository files, the Git index, patches, logs,
+  or the Nix store.
+- If plaintext is temporarily required for validation, create it outside the
+  repository with mode `0600` and remove it immediately after use.
+- Before committing, verify that private values occur nowhere outside SOPS
+  ciphertext.
+
 ### Commit Message Convention
 
 Follow the established commit message style in this repository:

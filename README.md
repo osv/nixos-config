@@ -36,6 +36,21 @@ Keybindings are auto-generated to `~/.cache/nixos-config/keybinding/`:
 # Helpful tips
 - Switch to new config `nrs` or `nh os switch .` or `nixos-rebuild switch --flake .#xenon`
 
+## SOPS
+
+The age key is stored at `~/.config/sops/age/keys.txt`.
+
+```bash
+# Edit regular system secrets
+sops secrets/secrets.yaml
+
+# Edit the private backup script
+sops secrets/my-secrets-backup.bash.binary
+
+# Re-encrypt a file after changing recipients in .sops.yaml
+sops updatekeys secrets/my-secrets-backup.bash.binary
+```
+
 ## TODO
 
 - https://github.com/d12frosted/environment/blob/master/emacs/lisp/init-ide.el combobulate

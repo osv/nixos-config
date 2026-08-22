@@ -1,11 +1,23 @@
-{ lib, pkgs, config, virtual, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  virtual,
+  ...
+}:
 
 let
-  inherit (lib) mkIf mkMerge mkEnableOption optional;
+  inherit (lib)
+    mkIf
+    mkMerge
+    mkEnableOption
+    optional
+    ;
   inherit (lib.nerv) mkOpt;
 
   cfg = config.nerv.opt.security.vpn;
-in {
+in
+{
   options.nerv.opt.security.vpn = with lib.types; {
     enable = mkEnableOption "Enables VPN";
     kzVPN = mkEnableOption "Enables KZ VPN";
@@ -13,6 +25,11 @@ in {
 
   config = mkMerge [
     (mkIf (cfg.enable && cfg.kzVPN) {
+      sops.secrets = {
+        vpn-kzd.sopsFile = ../../../../../secrets/vpn.yaml;
+        vpn-kzp.sopsFile = ../../../../../secrets/vpn.yaml;
+      };
+
       services.openvpn = {
         servers = {
           kz-development = {
