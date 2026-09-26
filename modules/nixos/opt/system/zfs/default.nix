@@ -61,7 +61,7 @@ in {
         daily = mkDefault 3;
         hourly = mkDefault 0;
         frequent = mkDefault 0;
-        monthly = mkDefault 2;
+        monthly = mkDefault 9;
       };
     };
   };
