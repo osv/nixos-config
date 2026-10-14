@@ -17,7 +17,6 @@ final: prev: {
     prismlauncher
     chromium
     deploy-rs
-    viber
     zoom-us
     nerd-fonts
     kopia-ui
