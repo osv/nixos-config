@@ -50,8 +50,13 @@ in {
       nix-ld = on; # Required for uv/pip binary wheels (pyarrow, etc.)
       appimage-run = fuckOff;
     };
+    opt.cli-apps = {
+      wine = on;
+    };
     opt.apps = {
       firefox = on;
+      # Host-specific: SPECTRAN V6 spectrum analyzer software
+      rtsa-suite = on;
       ai = {
         claude-desktop = no;
         code-cursor = no;

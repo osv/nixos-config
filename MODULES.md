@@ -40,6 +40,7 @@
 | `nerv.opt.apps.protontricks` | Proton game fixes helper |
 | `nerv.opt.apps.qimgv` | Qt5 image viewer |
 | `nerv.opt.apps.rpcs3` | PlayStation 3 emulator |
+| `nerv.opt.apps.rtsa-suite` | Aaronia RTSA-Suite PRO (spectrum analyzer software for SPECTRAN V6, bundled tarball required) |
 | `nerv.opt.apps.shotcut` | Video editor |
 | `nerv.opt.apps.signal` | Signal private messenger (via flatpak) |
 | `nerv.opt.apps.simplescreenrecorder` | Screen recorder for Linux |

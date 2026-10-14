@@ -81,6 +81,8 @@ Tree structure of `modules/nixos/`:
 * All modules must be enabled (or disabled) in a "suite" module (e.g., `nerv.suites.development`).
 * All suites must be enabled (or disabled) in an "archetypes" module (e.g., `nerv.archetypes.workstation`).
 * A host-specific Nix file must enable an "archetypes" module. Some modules can be enabled or disabled directly in the host, but new modules should always be added to a suite.
+* **All code comments must be written in English** (Nix files, scripts, rule files, etc.), regardless of the conversation language.
+* Think carefully about `mkDefault`/priority consequences: values must merge the way the business logic expects. For example, `boot.kernelParams = mkDefault [ ... ]` discards the whole module list once the host defines its own params — plain list assignments merge element-wise instead.
 
 Read `./MODULES.md` to see what modules are available.
 Read `lib/module/default.nix` for util functions for module. For suites or archetypes: do not use `foo.enable = true`, but `foo = yes` or `foo = enabled`; use `yes`/`no` instead of `true`/`false` for suites or archetypes.

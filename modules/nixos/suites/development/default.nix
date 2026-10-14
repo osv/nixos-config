@@ -1,4 +1,10 @@
-{ options, config, lib, pkgs, ... }:
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 with lib.nerv;
@@ -16,7 +22,9 @@ let
       mycli = yes;
       clickhouse-cli = yes;
     };
-    ai = on // { whisper = no; };
+    ai = on // {
+      whisper = no;
+    };
   };
   cli-apps = {
     tmux = on;
@@ -26,12 +34,17 @@ let
 in
 {
   options.nerv.suites.development = with types; {
-    enable = mkBoolOpt false
-      "Whether or not to enable common development configuration.";
+    enable = mkBoolOpt false "Whether or not to enable common development configuration.";
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = [ 12345 3000 3001 8080 8081 ];
+    networking.firewall.allowedTCPPorts = [
+      12345
+      3000
+      3001
+      8080
+      8081
+    ];
 
     nerv = {
       opt.apps = apps;
@@ -51,7 +64,9 @@ in
         ruby = on;
       };
 
-      opt.virtualisation = { docker = on; };
+      opt.virtualisation = {
+        docker = on;
+      };
     };
   };
 }

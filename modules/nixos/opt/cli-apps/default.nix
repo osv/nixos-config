@@ -6,13 +6,12 @@ with lib.nerv;
 stdModules { inherit config lib pkgs; } [
   [
     "nerv.opt.cli-apps.wine"
-    "Wine"
+    "Wine (wine-wow64 build, runs 32/64-bit apps)"
     (with pkgs; [
-      winePackages.unstable
+      wineWow64Packages.unstable.out
       winetricks
-      wine64Packages.unstable
     ])
-    { derivative.homeDirectories = [ ".local/share/wineprefixes/default" ]; }
+    { derivative.homeDirectories = [ ".wine" ".local/share/wineprefixes/default" ]; }
     {}
   ]
 

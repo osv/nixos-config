@@ -49,6 +49,13 @@
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
+    # Aaronia RTSA-Suite PRO: Cloudflare challenge on downloads.aaronia.com
+    # blocks fetchurl, so the tarball is downloaded manually and wired as a path input.
+    rtsa-suite-tarball = {
+      url = "path:/persist/derivative/home/osv/dists/rtsa-suite-3.0.3.16655";
+      flake = false;
+    };
+
     nur.url = "github:nix-community/NUR";
 
     # Discord Replugged
@@ -60,14 +67,14 @@
       flake = false;
     };
 
-
     wallpapers-new = {
       url = "github:osv/wallpapers-new";
       flake = false;
     };
   };
 
-  outputs = inputs:
+  outputs =
+    inputs:
     let
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
@@ -82,7 +89,8 @@
           namespace = "nerv";
         };
       };
-    in lib.mkFlake {
+    in
+    lib.mkFlake {
       channels-config.allowUnfree = true;
       channels-config.permittedInsecurePackages = [
         # "openssl-1.1.1w"
@@ -117,8 +125,8 @@
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      checks = builtins.mapAttrs
-        (system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
-        inputs.deploy-rs.lib;
+      checks = builtins.mapAttrs (
+        system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
+      ) inputs.deploy-rs.lib;
     };
 }

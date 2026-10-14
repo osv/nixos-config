@@ -539,11 +539,25 @@
         "nur": "nur",
         "pass-zsh-completion": "pass-zsh-completion",
         "replugged": "replugged",
+        "rtsa-suite-tarball": "rtsa-suite-tarball",
         "snowfall-lib": "snowfall-lib",
         "sops-nix": "sops-nix",
         "stevenBlackHosts": "stevenBlackHosts",
         "unstable": "unstable",
         "wallpapers-new": "wallpapers-new"
+      }
+    },
+    "rtsa-suite-tarball": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791966655,
+        "narHash": "sha256-xA6k6KMIOWDeWMCitFfl6P3s9SyzpRySJeQzva+Orgo=",
+        "path": "/persist/derivative/home/osv/dists/rtsa-suite-3.0.3.16655",
+        "type": "path"
+      },
+      "original": {
+        "path": "/persist/derivative/home/osv/dists/rtsa-suite-3.0.3.16655",
+        "type": "path"
       }
     },
     "rust-analyzer-src": {
